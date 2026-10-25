@@ -1,0 +1,14 @@
+/target
+*.log
+/tools/state
+__pycache__/
+*.toml.bak
+# user data and built libraries never belong in git
+/sample_data/
+/fjall*/
+/index*/
+/fjall_sample/
+/index_test/
+/search_index*/
+/desktop/target/
+/desktop/gen/
