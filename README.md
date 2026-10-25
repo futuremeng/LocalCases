@@ -89,10 +89,14 @@ LOCALCASES_CONFIG=../config.toml cargo tauri bundle  # .deb / .AppImage / .msi /
 The shell needs Tauri's system dependencies, which on Debian/Ubuntu are:
 
 ```bash
-sudo apt install libwebkit2gtk-4.1-dev build-essential curl wget file libxdo-dev \
-  libssl-dev libayatana-appindicator3-dev librsvg2-dev
+sudo apt install pkg-config libdbus-1-dev libwebkit2gtk-4.1-dev build-essential \
+  curl wget file libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
 cargo install tauri-cli --locked
 ```
+
+Without them `cargo check` in `desktop/` stops in a C build script (first at
+`libdbus-sys`, then at the GTK/WebKit crates) rather than in this code, so install
+them before reporting a desktop build failure.
 
 The desktop is a separate Cargo workspace, so its dependency tree differs from the
 engine's; `tauri.conf.json` ships `LICENSE`, `NOTICE` and a `LICENSES.third-party.md`
