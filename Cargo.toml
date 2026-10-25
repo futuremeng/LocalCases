@@ -1,0 +1,62 @@
+[package]
+name = "localcases"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.92"
+description = "Offline search over your own case corpus (court judgments), with exact filters and facets"
+license = "Apache-2.0"
+repository = "https://github.com/futuremeng/localcases"
+publish = false
+
+# The desktop shell is a separate crate: it pulls in GUI system libraries that the
+# engine must not depend on, so it stays out of this workspace.
+[workspace]
+exclude = ["desktop"]
+
+[dependencies]
+axum = { version = "0.8.9", features = [
+    "http2",
+    "query",
+    "tokio",
+    "http1",
+    "json",
+], default-features = false }
+basic-toml = "*"
+bincode = "2.0.1"
+csv = "1"
+fast2s = "0.3.1"
+fjall = { version = "2.11.2", default-features = false, features = [
+    "single_writer_tx",
+    "miniz",
+] }
+getrandom = "0.3"
+indexmap = "2"
+jiff = { version = "0.2", default-features = false, features = ["std"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+stop-words = "0.10.1"
+tantivy = "0.27"
+tantivy-jieba = "0.21"
+tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
+tower = "0.5.3"
+tower-http = { version = "0.7", features = [
+    "compression-zstd",
+    "cors",
+    "timeout",
+] }
+tracing = { version = "0.1", features = [
+    "release_max_level_info",
+    "max_level_info",
+] }
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+zip = { version = "9", default-features = false, features = ["deflate"] }
+
+[target.'cfg(not(target_os = "windows"))'.dependencies]
+tikv-jemallocator = "0.7"
+
+[profile.release]
+lto = "fat"
+strip = true
+codegen-units = 1
+panic = "abort"
+rpath = false
