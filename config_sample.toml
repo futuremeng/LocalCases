@@ -1,0 +1,16 @@
+# Sample library: the 2013 slice (989,517 rows) imported once and reindexed in
+# seconds. Copy this file and change the three paths to start your own library.
+db = "fjall_sample"
+index_path = "index_sample"
+addr = "127.0.0.1:5010"
+
+# The text stays in the library; indexing it again costs ~8x the index size and
+# has no measured win, so leave this false unless you need phrase search in 全文.
+index_with_full_text = false
+
+# Directory of source files to import: *.zip, each holding CSV members.
+raw_data_path = "sample_data"
+
+# Deep paging guard, and the row cap for /api/export.csv.
+max_results = 50000
+export_limit = 10000
