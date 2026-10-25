@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>LocalCases</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<header>
+  <form id="searchform" autocomplete="off">
+    <input id="q" type="search" placeholder="关键词、案号或当事人" spellcheck="false">
+    <select id="sort" title="排序">
+      <option value="relevance">相关度</option>
+      <option value="date">裁判日期</option>
+      <option value="id">导入顺序</option>
+    </select>
+    <button type="submit">搜索</button>
+    <button id="export" type="button" title="导出当前筛选结果">导出 CSV</button>
+  </form>
+  <div id="status">正在启动本地索引…</div>
+</header>
+
+<div id="chips"></div>
+
+<main>
+  <aside id="facets"></aside>
+  <section id="results"></section>
+</main>
+
+<section id="detail" hidden>
+  <button id="close" type="button">关闭</button>
+  <div id="detailbody"></div>
+</section>
+
+<footer>
+  <button id="prev" type="button">上一页</button>
+  <span id="page"></span>
+  <button id="next" type="button">下一页</button>
+  <button id="cursor" type="button" title="按 id 游标翻页，深页更快">游标下一页</button>
+</footer>
+
+<script src="app.js"></script>
+</body>
+</html>

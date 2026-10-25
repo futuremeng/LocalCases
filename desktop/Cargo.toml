@@ -1,0 +1,25 @@
+[package]
+name = "localcases-desktop"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.92"
+description = "LocalCases desktop shell: a webview over the embedded search engine"
+license = "Apache-2.0"
+publish = false
+
+# Not published anywhere; the engine is a path dependency of this shell.
+[workspace]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+localcases = { path = ".." }
+serde = { version = "1", features = ["derive"] }
+tauri = { version = "2", features = [] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+
+[features]
+default = ["custom-protocol"]
+custom-protocol = ["tauri/custom-protocol"]

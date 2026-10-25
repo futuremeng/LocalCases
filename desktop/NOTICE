@@ -1,0 +1,14 @@
+LocalCases
+Copyright 2026 the LocalCases authors
+
+This product bundles source code and data from third parties, each under its own
+terms; see LICENSES.third-party.md for the full list of statically linked crates
+and their SPDX identifiers, and the crate distributions themselves for the license
+texts, which are unmodified.
+
+Where this product reads or writes a format invented by another open source
+project, that is noted in the affected file. The keyspace and index formats in
+`src/lib.rs` and `src/search.rs` are deliberately compatible with the "v2"
+on-disk format of cncases/cases (Mozilla Public License 2.0). That compatibility
+is a format choice: the sources in this repository were written for this project,
+and the MPL covers the other project's own files, not these.
