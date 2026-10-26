@@ -85,6 +85,16 @@ Local HTTP, JSON only, no HTML rendering anywhere in the engine.
   loopback. The desktop shell always configures one.
 * The webview is restricted to the loopback origins the shell actually binds.
 * Requests time out; responses are compressed.
+* A machine with no room for the corpus may run a forwarder instead: the same
+  loopback address and token gate in front, the library somewhere else. It swaps
+  the loopback token for the upstream one, serves one request per connection, and
+  returns exactly the bytes the upstream sent — it never rewrites a response. It
+  speaks plain HTTP without TLS, so it is for a network the operator controls;
+  beyond that, a tunnel is the answer. Anything but `http://host:port` is refused
+  rather than guessed at, and an upstream that closes without answering is an
+  error, not an empty page.
+* A library is memory-mapped and written by one process: it cannot sit on a share
+  two machines mount, and it may only be copied while closed.
 * The corpus directory is never committed, never uploaded, never sent anywhere.
 * Importing is an act by the user, who is responsible for having a lawful basis to
   process the personal data inside judgments. The application must say so.
@@ -97,6 +107,9 @@ Local HTTP, JSON only, no HTML rendering anywhere in the engine.
   markup out of a corpus value: a judgment containing HTML cannot inject content.
 * The shell owns no query logic: one implementation of search and exposure, in the
   engine.
+* `LOCALCASES_REMOTE_API` (with `LOCALCASES_UPSTREAM_TOKEN`) starts the same
+  window against another machine's service: no engine is opened locally, the
+  loopback service forwards, and the front-end is untouched.
 
 ## 7. Verification (how a change is allowed to land)
 

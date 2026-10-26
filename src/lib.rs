@@ -9,6 +9,7 @@ pub mod api;
 pub mod config;
 pub mod extract;
 pub mod model;
+pub mod proxy;
 pub mod query;
 pub mod search;
 pub mod server;

@@ -110,6 +110,57 @@ The UI lives in `ui/` (plain HTML/CSS/JS, no build step): search box, facet
 sidebar, result list, full-text panel, CSV export. It renders every field through
 `textContent`, so a judgment containing markup cannot inject anything.
 
+## A small machine: keep the corpus somewhere else
+
+A library is about 2.2 GB per million judgments plus a 357 MB index, and fjall
+compresses what it stores, so a cold copy barely shrinks: measured on the
+989,517-row sample, `tar | zstd -6` of library and index produced 2,558,840,430
+bytes from 2.55 GB of files. The way to run LocalCases on a machine with no room
+for that is to put no data on it.
+
+Serve the library on the machine that has it, on an address the others can reach
+(`addr = "0.0.0.0:5010"` in its config), with a token, since it is now reachable
+beyond that machine:
+
+```bash
+LOCALCASES_TOKEN='a long random string' ./target/release/serve config.toml
+```
+
+On the small machine, point `serve` — or the desktop shell — at that service. The
+local config only supplies `addr`; no library is opened there. The token the
+remote service expects never reaches the front-end: the forwarder attaches it
+after its own loopback gate has let the request through.
+
+```bash
+# headless: 127.0.0.1:5011 here -> the corpus machine over there
+LOCALCASES_REMOTE_API=http://192.168.1.100:5010 \
+LOCALCASES_UPSTREAM_TOKEN='what the corpus machine expects' \
+LOCALCASES_TOKEN='a different secret, for this loopback port' \
+./target/release/serve remote.toml
+
+# the same window, no corpus on this machine
+LOCALCASES_REMOTE_API=http://192.168.1.100:5010 \
+LOCALCASES_UPSTREAM_TOKEN='...' LOCALCASES_CONFIG=remote.toml cargo tauri dev
+```
+
+The webview still only ever talks to `127.0.0.1:<port>`, so the content security
+policy does not change and no page can reach the corpus machine directly.
+Measured through the forwarder: every endpoint answered byte-identical to the
+same request made directly, including a 59,078,168-byte `export.csv`, and zstd
+content survives the hop.
+
+Three limits worth knowing:
+
+* Plain HTTP, no TLS — use it on a network you control. Otherwise tunnel and
+  point the forwarder at the tunnel: `ssh -L 5010:corpus-box:5010 corpus-box`.
+* A library belongs to one process and is memory-mapped: it cannot live on a
+  share two machines mount, and Dropbox / iCloud / OneDrive must not be syncing
+  it while a service has it open. To move one, stop the service (a clean close
+  truncates the journals — 7.2 GB during an import settles to 2.2 GB), then
+  `rsync -a` the library and index to a local or external disk.
+* Or keep only part of the corpus on the small machine. The source zips are per
+  year, and every 1 GB of source costs about 1.66 GB of library and index.
+
 ## Layout
 
 | path | what it is |
@@ -118,6 +169,7 @@ sidebar, result list, full-text panel, CSV export. It renders every field throug
 | `src/search.rs` | the tantivy schema and analyzer; the on-disk format |
 | `src/query.rs` | filter/sort/facet parsing into tantivy queries and aggregations |
 | `src/api.rs`, `src/server.rs` | the JSON API and how it is exposed (token gate, CORS, timeouts) |
+| `src/proxy.rs` | the loopback forwarder: the same API surface, the library on another machine |
 | `src/bin/convert.rs` | import: CSV/zip → library, checkpointed, parallel readers, single writer |
 | `src/bin/index.rs` | library → index |
 | `src/bin/check.rs`, `src/bin/compare.rs` | self-verification of a library |
