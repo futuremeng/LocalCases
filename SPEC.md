@@ -92,7 +92,9 @@ Local HTTP, JSON only, no HTML rendering anywhere in the engine.
   speaks plain HTTP without TLS, so it is for a network the operator controls;
   beyond that, a tunnel is the answer. Anything but `http://host:port` is refused
   rather than guessed at, and an upstream that closes without answering is an
-  error, not an empty page.
+  error, not an empty page. Its gate excepts exactly one request: the browser's
+  CORS preflight, which no browser will attach a token to, and which the service
+  answers in its CORS layer — above that service's own gate.
 * A library is memory-mapped and written by one process: it cannot sit on a share
   two machines mount, and it may only be copied while closed.
 * The corpus directory is never committed, never uploaded, never sent anywhere.

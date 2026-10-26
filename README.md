@@ -147,7 +147,11 @@ The webview still only ever talks to `127.0.0.1:<port>`, so the content security
 policy does not change and no page can reach the corpus machine directly.
 Measured through the forwarder: every endpoint answered byte-identical to the
 same request made directly, including a 59,078,168-byte `export.csv`, and zstd
-content survives the hop.
+content survives the hop. Run headless on Linux with no library on this machine,
+the window renders and the corpus logs the same `search` that direct mode logs —
+which is how the one exception to the gate turned up: a browser sends a CORS
+preflight before it will ever send the token, so the forwarder passes that one
+request through and lets the service answer it from its own CORS layer.
 
 Three limits worth knowing:
 

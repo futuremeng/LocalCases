@@ -150,6 +150,18 @@ fn target(line: &str) -> Result<(String, String), String> {
     Ok((method.to_owned(), path.to_owned()))
 }
 
+/// The browser's cross-origin probe: an `OPTIONS` that names where the request
+/// comes from and which method it is asking about. A browser will never put a
+/// custom header on it, so it cannot carry the loopback token, and the service
+/// answers it in its CORS layer — above that service's own token gate. Letting
+/// it through is what keeps this hop invisible to the webview; it names no route
+/// and its answer is policy, not data.
+fn is_preflight(method: &str, head: &[u8]) -> bool {
+    method == "OPTIONS"
+        && header_value(head, "origin").is_some()
+        && header_value(head, "access-control-request-method").is_some()
+}
+
 /// Read one request head, plus the body it declared.
 async fn read_request(client: &mut TcpStream) -> Result<(Vec<u8>, Vec<u8>), String> {
     let mut request = Vec::new();
@@ -264,16 +276,20 @@ async fn handle(client: TcpStream, upstream: Upstream, local_token: Option<Strin
     let mut client = client;
     let outcome = async {
         let (head, body) = read_request(&mut client).await?;
+        let (method, path) = target(&request_line(&head))?;
         // The gate is answered here, before anything leaves this machine: a
         // client holding the wrong loopback token must not be able to make this
-        // process open a connection to the machine that holds the corpus.
+        // process open a connection to the machine that holds the corpus. A CORS
+        // preflight is the one request that passes ungated, because a browser
+        // will not attach a token to it — and it stops at the service's CORS
+        // layer, which sits above that service's own gate.
         let given = header_value(&head, "x-localcases-token").unwrap_or_default();
-        if let Some(wanted) = &local_token
+        if !is_preflight(&method, &head)
+            && let Some(wanted) = &local_token
             && given != *wanted
         {
             return Err("no token".to_owned());
         }
-        let (method, path) = target(&request_line(&head))?;
         exchange(&mut client, &upstream, &method, &path, &head, &body).await
     };
     match tokio::time::timeout(EXCHANGE_TIMEOUT, outcome).await {
@@ -529,6 +545,83 @@ mod tests {
         let answer = ask(local_port, "/api/health", Some("guess")).await;
         assert!(answer.starts_with("HTTP/1.1 401"));
         assert!(answer.contains("missing or wrong token"));
+        assert_eq!(upstream.seen.load(Ordering::SeqCst), 0);
+        running.abort();
+    }
+
+    /// One request exactly as written, so a test can be a browser: another
+    /// method, no token header, the CORS probe headers.
+    fn ask_raw(port: u16, request: &'static str) -> String {
+        use std::io::{Read, Write};
+        let mut client = std::net::TcpStream::connect(("127.0.0.1", port)).unwrap();
+        client.write_all(request.as_bytes()).unwrap();
+        client.shutdown(std::net::Shutdown::Write).unwrap();
+        let mut answer = String::new();
+        client.read_to_string(&mut answer).unwrap();
+        answer
+    }
+
+    async fn ask_raw_on(port: u16, request: &'static str) -> String {
+        tokio::task::spawn_blocking(move || ask_raw(port, request))
+            .await
+            .unwrap()
+    }
+
+    /// The desktop webview is a cross-origin client, so the first thing it sends
+    /// is a preflight that cannot carry a token. Gating that is what let a window
+    /// open, retry every 250 ms, and never reach the corpus: the service answers
+    /// a preflight in its CORS layer, above its own gate, so this hop has to let
+    /// it through and let the answer come back unchanged.
+    #[tokio::test]
+    async fn a_browser_preflight_reaches_the_service() {
+        let upstream = stub(
+            "HTTP/1.1 200 OK\r\naccess-control-allow-origin: http://tauri.localhost\r\naccess-control-allow-methods: GET\r\naccess-control-allow-headers: x-localcases-token\r\ncontent-length: 0\r\n\r\n",
+        );
+        let target = Upstream::parse(
+            &format!("http://127.0.0.1:{}", upstream.port),
+            Some("far".into()),
+        )
+        .unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let local_port = listener.local_addr().unwrap().port();
+        let running = tokio::spawn(forwarder(listener, target, Some("near".into())));
+
+        let answer = ask_raw_on(
+            local_port,
+            "OPTIONS /api/search?search=%E5%90%88%E5%90%8C HTTP/1.1\r\nhost: 127.0.0.1:5311\r\norigin: http://tauri.localhost\r\naccess-control-request-method: GET\r\naccess-control-request-headers: x-localcases-token\r\n\r\n",
+        )
+        .await;
+        assert!(answer.starts_with("HTTP/1.1 200"), "preflight: {answer}");
+        assert!(answer.contains("access-control-allow-methods: GET"));
+
+        let asked = upstream.last_request.lock().unwrap().clone();
+        assert!(asked.starts_with("OPTIONS /api/search?search=%E5%90%88%E5%90%8C HTTP/1.1"));
+        assert!(asked.contains("origin: http://tauri.localhost"));
+        assert!(asked.contains("access-control-request-method: GET"));
+        running.abort();
+    }
+
+    /// An `OPTIONS` that is not the browser's probe is a method like any other:
+    /// it still needs the loopback token before this process will talk to the
+    /// machine that holds the corpus.
+    #[tokio::test]
+    async fn an_options_that_is_not_a_preflight_is_still_gated() {
+        let upstream = stub("HTTP/1.1 200 OK\r\ncontent-length: 2\r\n\r\nok");
+        let target = Upstream::parse(
+            &format!("http://127.0.0.1:{}", upstream.port),
+            Some("far".into()),
+        )
+        .unwrap();
+        let listener = TcpListener::bind("127.0.0.1:0").await.unwrap();
+        let local_port = listener.local_addr().unwrap().port();
+        let running = tokio::spawn(forwarder(listener, target, Some("near".into())));
+
+        let answer = ask_raw_on(
+            local_port,
+            "OPTIONS /api/search HTTP/1.1\r\nhost: 127.0.0.1:5311\r\n\r\n",
+        )
+        .await;
+        assert!(answer.starts_with("HTTP/1.1 401"));
         assert_eq!(upstream.seen.load(Ordering::SeqCst), 0);
         running.abort();
     }
