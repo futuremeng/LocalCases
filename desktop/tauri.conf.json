@@ -25,6 +25,8 @@
     "active": true,
     "targets": "all",
     "category": "Productivity",
+    "publisher": "LocalCases contributors",
+    "longDescription": "Search a local corpus of court judgments: full-text search, facets by court, year, case type and procedure, and CSV export. The library stays on your own disk; a remote mode reads a corpus hosted on another machine through a loopback forwarder, so nothing is uploaded.",
     "icon": [
       "icons/icon.png"
     ],

@@ -83,8 +83,14 @@ library and a page in your browser cannot read it.
 ```bash
 cd desktop
 LOCALCASES_CONFIG=../config.toml cargo tauri dev     # run against a built library
-LOCALCASES_CONFIG=../config.toml cargo tauri bundle  # .deb / .AppImage / .msi / .app
+LOCALCASES_CONFIG=../config.toml cargo tauri bundle  # .deb / .rpm / .AppImage / .msi / .app
 ```
+
+On Linux, `bundle` writes the `.deb` and the `.rpm` itself — no `dpkg-deb` or
+`rpmbuild` needed — then downloads `linuxdeploy` for the `.AppImage`, so that
+last one needs network; `--bundles deb` skips it. A bundle carries `LICENSE`,
+`NOTICE` and `LICENSES.third-party.md` under `usr/lib/LocalCases/`, which is what
+`dpkg -c` should show before one of these is handed to anyone.
 
 The shell needs Tauri's system dependencies, which on Debian/Ubuntu are:
 
