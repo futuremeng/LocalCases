@@ -2308,7 +2308,7 @@ checksum = "47d9d19d1d6efa0109d2f65ff4c85cddd50bd572e5a00127ab10987290bcefae"
 
 [[package]]
 name = "localcases"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "axum",
  "basic-toml",
@@ -2335,7 +2335,7 @@ dependencies = [
 
 [[package]]
 name = "localcases-desktop"
-version = "0.1.0"
+version = "0.2.0"
 dependencies = [
  "localcases",
  "serde",
