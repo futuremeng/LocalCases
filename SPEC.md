@@ -144,13 +144,36 @@ The storage layout — which values go into the value log, how large those files
 the shape of the files, not the entries a library holds, which is what `compare`
 checks.
 
-## 8. Provenance
+## 8. Bundled datasets
+
+* Data is bundled only where it is an official document published for public use,
+  carries no personal data the publisher did not itself publish, and is small
+  enough for a reader to check by hand. One corpus qualifies:
+  `data/guiding-cases` — the SPC's guiding cases, whose parties the publisher
+  anonymises (某). A user's own judgment corpus is never bundled.
+* A dataset is a build product, never a hand-edited file: a tool under `tools/`
+  produces every byte of it from the source site and records, per record, the
+  source URL, the fetch time and the hash of the page it was read from.
+* Every stored column states its origin: verbatim from the source, derived under
+  a written rule, or empty because the source does not publish that fact. A
+  derived value that lands in a filterable column must be reproducible from the
+  text; anything that would have to be guessed stays empty.
+* `manifest.json` is the contract — file hashes, record and section counts, the
+  gaps. `tools/check_dataset.py` re-checks a dataset against it and reads the
+  expected CSV header out of the importer's own `COLUMNS` table, so a dataset
+  cannot drift away from what `convert` accepts.
+* Importing the bundled dataset must yield a library `check` passes and an index
+  that answers keyword search; the measured numbers live in the dataset README.
+
+## 9. Provenance
 
 | component | status |
 | --- | --- |
 | `src/model.rs`, `src/extract.rs`, `src/query.rs` | carried over (own work) |
 | `src/bin/convert.rs`, `index.rs`, `check.rs`, `compare.rs` | carried over (own work); extended here for loose CSV and aliased headers |
 | `tools/*.py` | carried over (own work) |
+| `tools/crawl_guiding_cases.py`, `tools/check_dataset.py` | written for this project |
+| `data/guiding-cases/` | built by that crawler from court.gov.cn; the text is the publisher's, the structure and provenance are this project's |
 | `src/lib.rs`, `config.rs`, `search.rs`, `api.rs`, `server.rs`, `bin/serve.rs` | reimplemented from this specification |
 | `stopwords.txt`, `ui/`, `desktop/`, this file | written for this project |
 

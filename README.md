@@ -46,6 +46,31 @@ the record it came from, identity keys are unique, counts match the index);
 `compare` diffs two libraries entry-for-entry, which is how the import path is
 kept honest across changes.
 
+## Try it without a corpus of your own
+
+`data/guiding-cases/` is a 278-record corpus the repository does ship: the
+Supreme People's Court's own guiding cases (指导案例1号 to 指导性案例279号), read
+off court.gov.cn, with every published section kept separate and every derived
+column labelled in `manifest.json`. Import it to see the whole pipeline in
+seconds instead of minutes:
+
+```toml
+raw_data_path = "data/guiding-cases"
+index_with_full_text = true      # the text lives in 全文; unindexed means unsearchable
+```
+
+```bash
+./target/release/convert config.toml --compact
+./target/release/index   config.toml
+./target/release/check   config.toml
+python3 tools/check_dataset.py            # the dataset against its own manifest
+```
+
+Measured: `rows 278 kept 278 dup 0 no_doc_id 0 empty_text 0 chars 775047`, index
+278 documents, `check` 0 failures, and `search=证据保全` answers 5 hits. The
+crawler that built it is `tools/crawl_guiding_cases.py`; `data/README.md` says
+what a bundled dataset is allowed to be.
+
 ## Import format
 
 A CSV is anything with a header row. Columns are matched by name and may be
@@ -183,16 +208,22 @@ Three limits worth knowing:
 | `src/bin/convert.rs` | import: CSV/zip → library, checkpointed, parallel readers, single writer |
 | `src/bin/index.rs` | library → index |
 | `src/bin/check.rs`, `src/bin/compare.rs` | self-verification of a library |
-| `tools/` | verification against the source CSVs, API spot checks, fingerprint comparison, third-party license inventory |
+| `tools/` | verification against the source CSVs, API spot checks, fingerprint comparison, dataset crawl and check, third-party license inventory |
+| `data/` | the datasets this repository ships (guiding cases), each with a manifest and a README |
 | `ui/`, `desktop/` | the desktop front-end and Tauri shell |
 
 ## Data, and what you are agreeing to
 
-This project ships **no corpus**. Judgments contain names, addresses, phone
-numbers and company details of real people: importing, storing, sharing or
+This project ships **no judgment corpus**. Judgments contain names, addresses,
+phone numbers and company details of real people: importing, storing, sharing or
 publishing them is your responsibility, and in most places that means you need a
 lawful basis to process them. Keep the library directory like the data itself —
 the `.gitignore` here excludes it, and the API listens on loopback by default.
+
+The one exception is `data/`, and it is a deliberate one: official documents a
+state organ publishes for public use, whose parties the publisher itself
+anonymises, small enough to check by hand, every record carrying the URL it came
+from. `data/README.md` states the rule a dataset has to meet to be bundled here.
 
 Nothing in LocalCases redacts anything. A name, an address or an ID number survives
 import, search, the detail view and the CSV export exactly as your source file held

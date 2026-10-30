@@ -12,3 +12,11 @@ project, that is noted in the affected file. The keyspace and index formats in
 on-disk format of cncases/cases (Mozilla Public License 2.0). That compatibility
 is a format choice: the sources in this repository were written for this project,
 and the MPL covers the other project's own files, not these.
+
+This product bundles one dataset, `data/guiding-cases`: the Supreme People's
+Court's guiding cases as published on court.gov.cn. Those are official documents
+of a state organ, published for courts and the public to use, and the publisher
+anonymises the parties itself. Every record carries the URL, fetch time and page
+hash it came from. The Apache-2.0 license above covers this repository's code and
+the structure added around that text; it does not claim the text, which remains
+the publisher's. See `data/guiding-cases/README.md`.

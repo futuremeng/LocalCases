@@ -1,0 +1,150 @@
+{
+  "dataset": "guiding-cases",
+  "title": "最高人民法院指导性案例（指导案例1号 至 指导性案例279号）",
+  "version": "1.0.0",
+  "generated_at": "2026-10-29T16:54:14Z",
+  "generator": "tools/crawl_guiding_cases.py",
+  "source": {
+    "publisher": "最高人民法院",
+    "site": "https://www.court.gov.cn",
+    "listing_url": "https://www.court.gov.cn/shenpan/gengduo/77.html",
+    "listing_pages": 15,
+    "listing_entries": 293,
+    "fetched_first": "2026-10-29T16:07:04Z",
+    "fetched_last": "2026-10-29T16:28:16Z"
+  },
+  "counts": {
+    "cases": 278,
+    "notices": 15,
+    "case_numbers_min": 1,
+    "case_numbers_max": 279,
+    "case_numbers_missing": [
+      45
+    ],
+    "with_batch_attribution": 78,
+    "sections": {
+      "关键词": 278,
+      "裁判要点": 271,
+      "相关法条": 277,
+      "基本案情": 277,
+      "法院经审理查明": 52,
+      "裁判结果": 271,
+      "裁判理由": 271,
+      "执行实施要点": 7
+    },
+    "full_text_chars_total": 775047
+  },
+  "files": {
+    "cases.jsonl": {
+      "sha256": "985433c79d57831718b519cae8ee6935e8ee67bc430d1fde110df270f47d253f",
+      "bytes": 4708095,
+      "records": 278
+    },
+    "cases.csv": {
+      "sha256": "a05d72aa908c3848f31f785eddffaad874d4c8c056213f6d00ff995cf9868c69",
+      "bytes": 2311747,
+      "records": 278
+    },
+    "notices.jsonl": {
+      "sha256": "e6cda8b3dd6a94c60f9ee249f07a80c3481a744f8bc79c8c1c1e3a63a90567eb",
+      "bytes": 80935,
+      "records": 15
+    }
+  },
+  "fields": {
+    "原始链接": {
+      "origin": "verbatim",
+      "note": "the court.gov.cn page the record was read from"
+    },
+    "案号": {
+      "origin": "derived",
+      "note": "case number of the effective judgment, read out of 裁判结果; empty when the page names none"
+    },
+    "案件名称": {
+      "origin": "verbatim",
+      "note": "the published title, 指导性案例NNN号 prefix included; line wraps inside the title are joined"
+    },
+    "法院": {
+      "origin": "empty",
+      "note": "a guiding-case page names no single adjudicating court; the courts it does mention are in the JSON field courts_mentioned"
+    },
+    "所属地区": {
+      "origin": "empty",
+      "note": "not published for guiding cases"
+    },
+    "案件类型": {
+      "origin": "derived",
+      "note": "the first term of 关键词 (民事 / 刑事 / 行政 / 执行 / …)"
+    },
+    "案件类型编码": {
+      "origin": "derived",
+      "note": "the code extract.rs documents for that 案件类型; empty when the group has no code"
+    },
+    "来源": {
+      "origin": "fixed",
+      "note": "最高人民法院指导性案例"
+    },
+    "审理程序": {
+      "origin": "empty",
+      "note": "a guiding case spans instances, so no single procedure applies"
+    },
+    "裁判日期": {
+      "origin": "empty",
+      "note": "the SPC publishes a 发布日期 for a guiding case, not a judgment date"
+    },
+    "公开日期": {
+      "origin": "verbatim",
+      "note": "the date shown on the listing page"
+    },
+    "当事人": {
+      "origin": "empty",
+      "note": "the publisher anonymises the parties itself (某); no party list is published"
+    },
+    "案由": {
+      "origin": "empty",
+      "note": "a guiding case publishes no 案由 label, and cutting a phrase out of the case name would invent one; the 关键词 terms are the closest published thing"
+    },
+    "法律依据": {
+      "origin": "verbatim",
+      "note": "the page's 相关法条 section"
+    },
+    "全文": {
+      "origin": "verbatim",
+      "note": "title, 发布 note and every published section, plain text, markup removed, nothing reworded"
+    }
+  },
+  "notes": [
+    "指导案例45号 is announced by 第10批 (指导案例45-52号) but the site's 指导案例 listing publishes no page for it, so the dataset holds 278 of 1-279.",
+    "24 cases publish no 裁判结果 section, so 案号 is empty for them.",
+    "7 执行 cases publish 执行实施要点 where the others publish 裁判要点.",
+    "法院, 所属地区, 审理程序, 当事人 and 案由 are left empty: a guiding-case page publishes none of them as a field. Nothing is inferred into a filterable column.",
+    "batch attribution covers 78 of the 278 cases: 14 of the 15 notices in this listing name case-number ranges (the 第1批 notice names its cases by title only, and the 第2批 notice is not in this listing); batches after 第16批 were published here without a notice.",
+    "全文 is plain text, so a search over it needs index_with_full_text = true; at 775 kB of text that costs nothing."
+  ],
+  "case_json_fields": [
+    "case_no",
+    "case_no_label",
+    "title",
+    "title_full",
+    "publish_note",
+    "publish_date",
+    "batch",
+    "keywords",
+    "case_group",
+    "sections",
+    "section_order",
+    "judgment_case_numbers",
+    "courts_mentioned",
+    "full_text",
+    "full_text_sha256",
+    "full_text_chars",
+    "source_url",
+    "page_sha256",
+    "fetched_at"
+  ],
+  "redistribution": {
+    "basis": "official judicial document of the Supreme People's Court, published for courts to refer to in similar cases; the publisher anonymises the parties itself, so a record names no private individual",
+    "cite": "cite the 指导案例 number and the source_url stored with every record",
+    "checked_at": "2026-10-29T16:54:14Z"
+  }
+}
