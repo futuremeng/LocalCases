@@ -15,7 +15,7 @@ for shipping it is narrow:
 
 | dataset | records | what it is |
 | --- | --- | --- |
-| [`guiding-cases/`](guiding-cases/) | 278 cases + 15 notices | 最高人民法院指导性案例, 指导案例1号 through 指导性案例279号, as published on court.gov.cn |
+| [`guiding-cases/`](guiding-cases/) | 279 cases + 15 notices | 最高人民法院指导性案例, 指导案例1号 through 指导性案例279号, as published on court.gov.cn (指导案例45号, which the site never gave a page, from a documented court mirror) |
 
 Each dataset directory holds `manifest.json` (hashes, counts, field
 definitions, provenance) and a README. `python3 tools/check_dataset.py --dir

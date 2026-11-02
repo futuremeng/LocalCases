@@ -1,8 +1,8 @@
 {
   "dataset": "guiding-cases",
   "title": "最高人民法院指导性案例（指导案例1号 至 指导性案例279号）",
-  "version": "1.0.0",
-  "generated_at": "2026-10-29T16:54:14Z",
+  "version": "1.1.0",
+  "generated_at": "2026-11-02T14:55:52Z",
   "generator": "tools/crawl_guiding_cases.py",
   "source": {
     "publisher": "最高人民法院",
@@ -11,39 +11,37 @@
     "listing_pages": 15,
     "listing_entries": 293,
     "fetched_first": "2026-10-29T16:07:04Z",
-    "fetched_last": "2026-10-29T16:28:16Z"
+    "fetched_last": "2026-11-02T14:32:47Z"
   },
   "counts": {
-    "cases": 278,
+    "cases": 279,
     "notices": 15,
     "case_numbers_min": 1,
     "case_numbers_max": 279,
-    "case_numbers_missing": [
-      45
-    ],
-    "with_batch_attribution": 78,
+    "case_numbers_missing": [],
+    "with_batch_attribution": 79,
     "sections": {
-      "关键词": 278,
-      "裁判要点": 271,
-      "相关法条": 277,
-      "基本案情": 277,
-      "法院经审理查明": 52,
-      "裁判结果": 271,
-      "裁判理由": 271,
+      "关键词": 279,
+      "裁判要点": 272,
+      "相关法条": 278,
+      "基本案情": 278,
+      "法院经审理查明": 53,
+      "裁判结果": 272,
+      "裁判理由": 272,
       "执行实施要点": 7
     },
-    "full_text_chars_total": 775047
+    "full_text_chars_total": 780339
   },
   "files": {
     "cases.jsonl": {
-      "sha256": "985433c79d57831718b519cae8ee6935e8ee67bc430d1fde110df270f47d253f",
-      "bytes": 4708095,
-      "records": 278
+      "sha256": "c11a9f3d6714c29e1e5281073936b3690d61ce9bfdb34fa6278a77e1593ef48d",
+      "bytes": 4739191,
+      "records": 279
     },
     "cases.csv": {
-      "sha256": "a05d72aa908c3848f31f785eddffaad874d4c8c056213f6d00ff995cf9868c69",
-      "bytes": 2311747,
-      "records": 278
+      "sha256": "61850c2c6f0fb4b7bceec4747dd76f3971c1284ad1d5c36df6c921a68a71ac56",
+      "bytes": 2327019,
+      "records": 279
     },
     "notices.jsonl": {
       "sha256": "e6cda8b3dd6a94c60f9ee249f07a80c3481a744f8bc79c8c1c1e3a63a90567eb",
@@ -54,7 +52,7 @@
   "fields": {
     "原始链接": {
       "origin": "verbatim",
-      "note": "the court.gov.cn page the record was read from"
+      "note": "the court.gov.cn page the record was read from; 指导案例45号 has no such page, so its record names the court-run mirror it was read from instead"
     },
     "案号": {
       "origin": "derived",
@@ -114,12 +112,12 @@
     }
   },
   "notes": [
-    "指导案例45号 is announced by 第10批 (指导案例45-52号) but the site's 指导案例 listing publishes no page for it, so the dataset holds 278 of 1-279.",
+    "指导案例45号 is announced by 第10批 (指导案例45-52号) but the site's 指导案例 listing publishes no page for it, and no xiangqing page exists for it; its record is taken verbatim from the 洛阳中院 mirror named in the crawler's SUPPLEMENTS, so the dataset holds 279 of 1-279.",
     "24 cases publish no 裁判结果 section, so 案号 is empty for them.",
     "7 执行 cases publish 执行实施要点 where the others publish 裁判要点.",
     "法院, 所属地区, 审理程序, 当事人 and 案由 are left empty: a guiding-case page publishes none of them as a field. Nothing is inferred into a filterable column.",
-    "batch attribution covers 78 of the 278 cases: 14 of the 15 notices in this listing name case-number ranges (the 第1批 notice names its cases by title only, and the 第2批 notice is not in this listing); batches after 第16批 were published here without a notice.",
-    "全文 is plain text, so a search over it needs index_with_full_text = true; at 775 kB of text that costs nothing."
+    "batch attribution covers 79 of the 279 cases: 14 of the 15 notices in this listing name case-number ranges (the 第1批 notice names its cases by title only, and the 第2批 notice is not in this listing); batches after 第16批 were published here without a notice.",
+    "全文 is plain text, so a search over it needs index_with_full_text = true; at 780 kB of text that costs nothing."
   ],
   "case_json_fields": [
     "case_no",
@@ -145,6 +143,6 @@
   "redistribution": {
     "basis": "official judicial document of the Supreme People's Court, published for courts to refer to in similar cases; the publisher anonymises the parties itself, so a record names no private individual",
     "cite": "cite the 指导案例 number and the source_url stored with every record",
-    "checked_at": "2026-10-29T16:54:14Z"
+    "checked_at": "2026-11-02T14:55:52Z"
   }
 }

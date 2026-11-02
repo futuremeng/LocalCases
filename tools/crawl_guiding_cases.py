@@ -22,6 +22,7 @@ import argparse
 import csv
 import hashlib
 import html as htmllib
+import http.cookiejar
 import json
 import re
 import sys
@@ -100,6 +101,20 @@ CSV_COLUMNS = ["原始链接", "案号", "案件名称", "法院", "所属地区
                "案件类型编码", "来源", "审理程序", "裁判日期", "公开日期",
                "当事人", "案由", "法律依据", "全文"]
 
+# Cases the SPC announced but never published a page for in the 指导案例
+# listing. The 第10批 notice announces 指导案例45-52号; the listing carries
+# 46-52 but no page for 45号 (checked: no xiangqing page exists for it), so
+# its published text is taken verbatim from a court-run mirror that reprints
+# the SPC's guiding-case page in full.
+SUPPLEMENTS = [
+    {
+        "case_no": 45,
+        "title": "指导案例45号：北京百度网讯科技有限公司诉青岛奥商网络技术有限公司等不正当竞争纠纷案",
+        "url": "https://hnlyzy.hncourt.gov.cn/public/detail.php?id=6738",
+        "list_date": "2015-04-23",  # the 第10批 notice's date in the listing
+    },
+]
+
 
 def log(msg):
     print(msg, flush=True)
@@ -128,6 +143,9 @@ class Fetcher:
     def __init__(self, cache_dir, refresh):
         self.cache_dir = cache_dir
         self.refresh = refresh
+        self.jar = http.cookiejar.CookieJar()
+        self.opener = urllib.request.build_opener(
+            urllib.request.HTTPCookieProcessor(self.jar))
         self.log = {}
         log_path = cache_dir / "fetch-log.json"
         if log_path.exists():
@@ -146,7 +164,7 @@ class Fetcher:
         for attempt in range(4):
             try:
                 req = urllib.request.Request(url, headers={"User-Agent": UA})
-                with urllib.request.urlopen(req, timeout=40) as resp:
+                with self.opener.open(req, timeout=40) as resp:
                     raw = resp.read()
                 text = raw.decode("utf-8", errors="replace")
                 self.log[url] = {"fetched_at": now_iso(), "bytes": len(raw),
@@ -220,6 +238,16 @@ def article_body(page):
         return page[start.end():start.end() + end.start()]
     stop = page.find("<!--分享-->", start.end())
     return page[start.end():stop if stop > 0 else len(page)]
+
+
+def mirror_article(page):
+    """The article span of a SUPPLEMENTS mirror page, tags not included."""
+    m = re.search(r'<span class="detail_content">(.*)', page, re.S)
+    if not m:
+        return None
+    body = m.group(1)
+    stop = re.search(r"责任编辑|〖关闭窗口〗", body)
+    return body[:stop.start()] if stop else body
 
 
 def clean_title(s):
@@ -296,7 +324,7 @@ def parse_case(lines, item):
         raise ValueError("no case number on page: %s" % item["path"])
     title_parts = []
     for line in header:
-        if not publish_note and line.startswith("（") and "发布" in line:
+        if not publish_note and line.startswith(("（", "(")) and "发布" in line:
             publish_note = line
             continue
         if label and line == label:
@@ -439,7 +467,7 @@ def csv_row(rec):
 # derived by this script under a documented rule, or deliberately empty because
 # the publisher does not publish that fact for a guiding case.
 FIELD_DOC = {
-    "原始链接": {"origin": "verbatim", "note": "the court.gov.cn page the record was read from"},
+    "原始链接": {"origin": "verbatim", "note": "the court.gov.cn page the record was read from; 指导案例45号 has no such page, so its record names the court-run mirror it was read from instead"},
     "案号": {"origin": "derived", "note": "case number of the effective judgment, read out of 裁判结果; empty when the page names none"},
     "案件名称": {"origin": "verbatim", "note": "the published title, 指导性案例NNN号 prefix included; line wraps inside the title are joined"},
     "法院": {"origin": "empty", "note": "a guiding-case page names no single adjudicating court; the courts it does mention are in the JSON field courts_mentioned"},
@@ -462,7 +490,7 @@ def main():
     ap.add_argument("--out", default="data/guiding-cases")
     ap.add_argument("--cache", default="tools/state/guiding-cases-raw")
     ap.add_argument("--refresh", action="store_true", help="refetch every page")
-    ap.add_argument("--version", default="1.0.0")
+    ap.add_argument("--version", default="1.1.0")
     args = ap.parse_args()
 
     out, cache = Path(args.out), Path(args.cache)
@@ -518,6 +546,33 @@ def main():
             notices.append(rec)
         if i % 50 == 0:
             log("  parsed %d/%d" % (i, len(items)))
+
+    # Cases the listing announced but never published: read them from the
+    # mirror pages named in SUPPLEMENTS, same parse path as every case page.
+    have = {r["case_no"] for r in cases}
+    for sup in SUPPLEMENTS:
+        if sup["case_no"] in have:
+            continue
+        page = fetcher.get(sup["url"])
+        body = mirror_article(page)
+        if body is None:
+            raise SystemExit("supplement page has no article: %s" % sup["url"])
+        meta = fetcher.log.get(sup["url"], {})
+        item = {"title": sup["title"], "path": sup["url"],
+                "list_date": sup["list_date"]}
+        rec = parse_case(html_to_lines(body), item)
+        if rec["case_no"] != sup["case_no"]:
+            raise SystemExit("supplement %s parsed as %s: %s"
+                             % (sup["case_no"], rec["case_no"], sup["url"]))
+        rec["source_url"] = sup["url"]
+        rec["page_sha256"] = meta.get("sha256", "")
+        rec["fetched_at"] = meta.get("fetched_at", "")
+        rec["publish_date"] = sup["list_date"]
+        rec["full_text"] = compose_full_text(rec)
+        rec["full_text_sha256"] = sha256_text(rec["full_text"])
+        rec["full_text_chars"] = len(rec["full_text"])
+        cases.append(rec)
+        log("supplemented %s from %s" % (rec["case_no_label"], sup["url"]))
     fetcher.save_log()
 
     cases.sort(key=lambda r: r["case_no"])
@@ -596,7 +651,9 @@ def main():
         "fields": FIELD_DOC,
         "notes": [
             "指导案例45号 is announced by 第10批 (指导案例45-52号) but the site's 指导案例 "
-            "listing publishes no page for it, so the dataset holds %d of 1-%d."
+            "listing publishes no page for it, and no xiangqing page exists for it; its "
+            "record is taken verbatim from the 洛阳中院 mirror named in the crawler's "
+            "SUPPLEMENTS, so the dataset holds %d of 1-%d."
             % (len(cases), max(numbers)),
             "%d cases publish no 裁判结果 section, so 案号 is empty for them."
             % sum(1 for r in cases if not r["judgment_case_numbers"]),
@@ -611,7 +668,8 @@ def main():
             % (sum(1 for r in cases if "batch" in r), len(cases),
                sum(1 for n in notices if n["case_ranges"]), len(notices)),
             "全文 is plain text, so a search over it needs index_with_full_text = "
-            "true; at 775 kB of text that costs nothing.",
+            "true; at %d kB of text that costs nothing."
+            % (sum(r["full_text_chars"] for r in cases) // 1000),
         ],
         "case_json_fields": [
             "case_no", "case_no_label", "title", "title_full", "publish_note",

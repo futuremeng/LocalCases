@@ -48,7 +48,7 @@ kept honest across changes.
 
 ## Try it without a corpus of your own
 
-`data/guiding-cases/` is a 278-record corpus the repository does ship: the
+`data/guiding-cases/` is a 279-record corpus the repository does ship: the
 Supreme People's Court's own guiding cases (指导案例1号 to 指导性案例279号), read
 off court.gov.cn, with every published section kept separate and every derived
 column labelled in `manifest.json`. Import it to see the whole pipeline in
@@ -66,8 +66,8 @@ index_with_full_text = true      # the text lives in 全文; unindexed means uns
 python3 tools/check_dataset.py            # the dataset against its own manifest
 ```
 
-Measured: `rows 278 kept 278 dup 0 no_doc_id 0 empty_text 0 chars 775047`, index
-278 documents, `check` 0 failures, and `search=证据保全` answers 5 hits. The
+Measured: `rows 279 kept 279 dup 0 no_doc_id 0 empty_text 0 chars 780339`, index
+279 documents, `check` 0 failures, and `search=证据保全` answers 5 hits. The
 crawler that built it is `tools/crawl_guiding_cases.py`; `data/README.md` says
 what a bundled dataset is allowed to be.
 

@@ -28,7 +28,8 @@ csv.field_size_limit(10**9)
 
 REQUIRED_SECTIONS = ["关键词", "基本案情", "裁判结果", "裁判理由", "相关法条"]
 DATE_RE = re.compile(r"^\d{4}-\d{2}-\d{2}$")
-URL_RE = re.compile(r"^https://www\.court\.gov\.cn/shenpan/xiangqing/\d+\.html$")
+URL_RE = re.compile(r"^https://(www\.court\.gov\.cn/shenpan/xiangqing/\d+\.html"
+                    r"|hnlyzy\.hncourt\.gov\.cn/public/detail\.php\?id=\d+)$")
 
 failures = []
 
@@ -100,7 +101,7 @@ def main():
                 if hashlib.sha256(c["full_text"].encode("utf-8")).hexdigest() != c["full_text_sha256"]]
     check(not bad_hash, "every 全文 hash recomputes (%s)" % (bad_hash[:5] or "all"))
     bad_url = [c["case_no"] for c in cases if not URL_RE.match(c["source_url"])]
-    check(not bad_url, "every record names a court.gov.cn source page (%s)" % (bad_url[:5] or "all"))
+    check(not bad_url, "every record names a documented source page (%s)" % (bad_url[:5] or "all"))
     bad_date = [c["case_no"] for c in cases if not DATE_RE.match(c["publish_date"])]
     check(not bad_date, "every record has an ISO 公开日期 (%s)" % (bad_date[:5] or "all"))
     seen_sections = {}
