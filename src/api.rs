@@ -398,7 +398,9 @@ pub async fn export_csv(
         .into_response()
 }
 
-/// Lets the desktop shell wait until the library and index are actually open.
+/// Lets the desktop shell wait until the library and index are actually open,
+/// and lets a consumer refuse a build whose contract it does not speak:
+/// `version` is this crate's, `schema` is the on-disk and API contract.
 pub async fn health(State(state): State<AppState>) -> impl IntoResponse {
     let documents = state
         .searcher
@@ -406,7 +408,12 @@ pub async fn health(State(state): State<AppState>) -> impl IntoResponse {
         .searcher()
         .search(&AllQuery, &Count)
         .unwrap_or_default();
-    Json(serde_json::json!({ "ok": true, "indexed_documents": documents }))
+    Json(serde_json::json!({
+        "ok": true,
+        "indexed_documents": documents,
+        "version": env!("CARGO_PKG_VERSION"),
+        "schema": crate::SCHEMA,
+    }))
 }
 
 pub fn routes(state: AppState) -> Router {

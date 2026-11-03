@@ -7,12 +7,19 @@ pub use search::{Search, Searcher};
 
 pub mod api;
 pub mod config;
+pub mod discovery;
 pub mod extract;
 pub mod model;
 pub mod proxy;
 pub mod query;
 pub mod search;
 pub mod server;
+
+/// The contract this build speaks: the on-disk library/index layout and the
+/// JSON API fields that go with it. `serve` reports it in `/api/health` and in
+/// the discovery file, so a consumer can refuse a mismatched contract instead
+/// of mis-parsing fields. Bump it when a stored field changes meaning.
+pub const SCHEMA: u32 = 2;
 
 /// The fjall partitions a LocalCases library is made of. These strings are
 /// on-disk format: changing one means migrating existing libraries.

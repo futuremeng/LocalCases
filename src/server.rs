@@ -19,10 +19,11 @@ use tower_http::{
     cors::{AllowOrigin, CorsLayer},
     timeout::TimeoutLayer,
 };
-use tracing::info;
+use tracing::{info, warn};
 
 use crate::api;
 use crate::config::CONFIG;
+use crate::discovery::{self, Announcement};
 use crate::v2::{P_CASES, P_FIELDS};
 use crate::{AppState, Search};
 
@@ -118,8 +119,55 @@ pub async fn serve_at(
     token: Option<String>,
 ) -> std::io::Result<()> {
     let listener = TcpListener::bind(addr).await?;
-    info!("listening on http://{}", listener.local_addr()?);
-    axum::serve(listener, router(state, token)).await
+    let local = listener.local_addr()?;
+    info!("listening on http://{local}");
+    // Publish the token and the contract for a consumer installed next to us.
+    // Failing to write the file is not a reason not to serve: the operator can
+    // still hand the token over through LOCALCASES_TOKEN.
+    let announcement = Announcement {
+        addr: format!("http://{local}"),
+        token: token.as_deref(),
+        pid: std::process::id(),
+        version: env!("CARGO_PKG_VERSION"),
+        schema: crate::SCHEMA,
+        indexed_documents: Some(state.searcher.reader.searcher().num_docs()),
+        mode: "local",
+    };
+    let _discovery = match discovery::announce(&announcement) {
+        Ok(guard) => Some(guard),
+        Err(e) => {
+            warn!("cannot write the discovery file: {e}");
+            None
+        }
+    };
+    axum::serve(listener, router(state, token))
+        .with_graceful_shutdown(shutdown_signal())
+        .await
+}
+
+/// Ctrl-C and SIGTERM end the run the way an operator means it: the serve
+/// futures resolve, the discovery guard drops, and the file is removed. A
+/// killed process still leaves it behind — which is why it carries `pid`.
+pub async fn shutdown_signal() {
+    #[cfg(unix)]
+    {
+        use tokio::signal::unix::{SignalKind, signal};
+        match signal(SignalKind::terminate()) {
+            Ok(mut terminate) => {
+                tokio::select! {
+                    _ = tokio::signal::ctrl_c() => {}
+                    _ = terminate.recv() => {}
+                }
+            }
+            Err(_) => {
+                let _ = tokio::signal::ctrl_c().await;
+            }
+        }
+    }
+    #[cfg(not(unix))]
+    {
+        let _ = tokio::signal::ctrl_c().await;
+    }
 }
 
 /// Open the configured library, then serve it.

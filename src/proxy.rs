@@ -313,14 +313,46 @@ pub async fn serve(
     local_token: Option<String>,
 ) -> std::io::Result<()> {
     let listener = TcpListener::bind(addr).await?;
+    let local = listener.local_addr()?;
     info!(
-        "forwarding http://{} to http://{}{}",
-        listener.local_addr()?,
+        "forwarding http://{local} to http://{}{}",
         upstream.authority(),
         upstream.prefix
     );
+    // The same discovery file as the local service, so a consumer installed
+    // next to the forwarder finds this loopback port and this hop's token. The
+    // document count is the upstream's to know, hence null; `indexed_documents`
+    // and the contract come from upstream's /api/health once a consumer asks.
+    let announcement = crate::discovery::Announcement {
+        addr: format!("http://{local}"),
+        token: local_token.as_deref(),
+        pid: std::process::id(),
+        version: env!("CARGO_PKG_VERSION"),
+        schema: crate::SCHEMA,
+        indexed_documents: None,
+        mode: "forward",
+    };
+    let _discovery = match crate::discovery::announce(&announcement) {
+        Ok(guard) => Some(guard),
+        Err(e) => {
+            warn!("cannot write the discovery file: {e}");
+            None
+        }
+    };
+    // Registered once: the select below re-arms the accept branch every
+    // iteration, and a fresh signal stream per round would pile up handlers.
+    let mut shutdown = Box::pin(crate::server::shutdown_signal());
     loop {
-        let (client, peer) = listener.accept().await?;
+        // The same exit path as the local service: a signal ends the loop, the
+        // guard drops, the discovery file goes with it.
+        let accepted = tokio::select! {
+            _ = &mut shutdown => None,
+            accepted = listener.accept() => Some(accepted),
+        };
+        let Some(accepted) = accepted else {
+            break Ok(());
+        };
+        let (client, peer) = accepted?;
         let upstream = upstream.clone();
         let local_token = local_token.clone();
         info!("{} reached the forwarder", peer.ip());
