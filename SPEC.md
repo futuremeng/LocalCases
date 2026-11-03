@@ -71,7 +71,8 @@ Local HTTP, JSON only, no HTML rendering anywhere in the engine.
   engine returns text; the caller decides how to display it.
 * `GET /api/export.csv` — the same query as a download, capped by a configured
   limit.
-* `GET /api/health` — the service is up, and how many documents are indexed.
+* `GET /api/health` — the service is up, how many documents are indexed, and the
+  contract it speaks (`version`, `schema`), so a consumer can refuse a mismatch.
 * A filter value that cannot be parsed is a client error, never a silently
   widened query. Unknown parameters are ignored, so older clients keep working.
 * Full-width/half-width and simplified/traditional spellings find each other.
@@ -83,6 +84,11 @@ Local HTTP, JSON only, no HTML rendering anywhere in the engine.
 * A shared secret (`x-localcases-token`) gates the API when configured: without
   it, any page open in the user's browser could read the whole library off
   loopback. The desktop shell always configures one.
+* So a consumer installed next to us can find that per-run token, a running
+  service publishes `<state dir>/localcases.json` — mode 0600, written through a
+  private temporary, removed on a clean exit. It carries `pid` because a killed
+  process leaves the file behind: a consumer must confirm the process is alive
+  before trusting the token in it.
 * The webview is restricted to the loopback origins the shell actually binds.
 * Requests time out; responses are compressed.
 * A machine with no room for the corpus may run a forwarder instead: the same

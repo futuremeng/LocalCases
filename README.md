@@ -243,17 +243,22 @@ corpus has exactly one owner — this project writes it; a consumer connects ove
 loopback HTTP and never writes, never rebuilds the index, and never starts our
 process. A consumer that cannot reach us shows guidance instead of an empty list.
 
-Two things a consumer needs that we do not provide yet (tracked on the consumer
-side, OpenCourt `docs/localcases-integration.md` §8):
+Two things a consumer needs, both provided as of 0.3.0:
 
 - **Token discovery.** The desktop shell calls `server::random_token()` per run and
   never persists it; `config.toml` has no token field; the CLI reads only
-  `LOCALCASES_TOKEN`. So an app installed next to the desktop shell has no way to
-  obtain the token. Proposal: write `<state dir>/localcases.json`
-  (`addr`, `token`, `pid`, `version`, `schema`, `indexed_documents`, mode 0600,
-  removed on exit) when `serve` starts.
-- **Contract version in `/api/health`.** Returning `version` and the index `schema`
-  lets a consumer refuse a mismatched contract instead of mis-parsing fields.
+  `LOCALCASES_TOKEN`. So an app installed next to the desktop shell would have no
+  way to obtain the token. A running service therefore writes
+  `<state dir>/localcases.json` (`addr`, `token`, `pid`, `version`, `schema`,
+  `indexed_documents`, `mode`; mode 0600) when it starts and removes it on a clean
+  exit. The state directory is `LOCALCASES_STATE_DIR`, else `XDG_STATE_HOME`,
+  else `~/.local/state`, each plus `localcases/`. A killed process leaves the file
+  behind, so a consumer must check `pid` is alive before trusting the token in it.
+  The forwarder writes the same file with `mode: "forward"` and a null
+  `indexed_documents`; the token there is this hop's.
+- **Contract version in `/api/health`.** It returns `version` and the index
+  `schema`, so a consumer can refuse a mismatched contract instead of mis-parsing
+  fields. The same `schema` number is in the discovery file.
 
 Facet counts from `group_by` are approximate; a consumer may show buckets and
 counts, but not percentages or anything that reads like an outcome probability.
