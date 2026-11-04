@@ -153,6 +153,27 @@ The UI lives in `ui/` (plain HTML/CSS/JS, no build step): search box, facet
 sidebar, result list, full-text panel, CSV export. It renders every field through
 `textContent`, so a judgment containing markup cannot inject anything.
 
+## Downloads
+
+A tag publishes what CI built: pushing `v0.3.0` runs the same checks a push runs and
+then attaches the three bundles to a release, with a `SHA256SUMS` beside them.
+
+| file | for |
+| --- | --- |
+| `LocalCases-0.3.0-linux-amd64.deb` | Debian and Ubuntu on x86_64 |
+| `LocalCases-0.3.0-macos-arm64.app.zip` | Apple Silicon — unzip and drag onto Applications |
+| `LocalCases-0.3.0-windows-x64.msi` | Windows 10 and 11 on x86_64 |
+
+Nothing in them is signed: a Mac will say the app is from an unidentified developer
+(right-click → Open, once) and Windows will show SmartScreen. Check what you
+downloaded against the release's `SHA256SUMS` before installing it.
+
+**A bundle is not enough to search yet.** It installs the window and the engine that
+answers it, but no corpus, and the window has no import: building a library is still
+the CLI's job (*Import, index, search*), so a machine that only has the bundle opens
+on an empty library. Shipping the CLI inside the bundle and putting an import in the
+window are the two things this release does not do.
+
 ## A small machine: keep the corpus somewhere else
 
 A library is about 2.2 GB per million judgments plus a 357 MB index, and fjall

@@ -280,7 +280,22 @@ jobs:
             echo "no bundle came out of the desktop job" >&2
             exit 1
           fi
-          find bundles -type f | sort
+
+          # Names a README can link to. Tauri's own names differ per bundler and
+          # carry the crate name; these say what is inside and for which machine.
+          # The arch is the runner's: macOS bundles are Apple Silicon, not universal.
+          version=${GITHUB_REF_NAME#v}
+          mkdir -p dist
+          for f in $(find bundles -type f | sort); do
+            case "$f" in
+              *.deb) cp "$f" "dist/LocalCases-$version-linux-amd64.deb" ;;
+              *.zip) cp "$f" "dist/LocalCases-$version-macos-arm64.app.zip" ;;
+              *.msi) cp "$f" "dist/LocalCases-$version-windows-x64.msi" ;;
+              *) echo "unexpected bundle: $f" >&2; exit 1 ;;
+            esac
+          done
+          (cd dist && sha256sum *) > SHA256SUMS
+          cat SHA256SUMS
           # quoted delimiter: the notes talk about `LICENSE` and `dpkg -c`, and an
           # unquoted heredoc would run those backticks as commands
           cat > notes.md <<'MD'
@@ -293,9 +308,16 @@ jobs:
           Linux, `dpkg -c` should show them under `usr/lib/LocalCases/`. The version
           in the window's About box is the version `/api/health` reports, and the
           shell's build script refuses to build when the two manifests disagree.
+          `SHA256SUMS` covers the three bundles: `sha256sum -c SHA256SUMS`.
           MD
-          gh release create "$GITHUB_REF_NAME" \
-            --title "LocalCases $GITHUB_REF_NAME" \
-            --notes-file notes.md \
-            $(find bundles -type f)
+          if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
+            # re-running the job of a tag replaces what it published instead of
+            # failing on a release that already exists
+            gh release upload "$GITHUB_REF_NAME" --clobber dist/* SHA256SUMS
+          else
+            gh release create "$GITHUB_REF_NAME" \
+              --title "LocalCases $GITHUB_REF_NAME" \
+              --notes-file notes.md \
+              dist/* SHA256SUMS
+          fi
 
