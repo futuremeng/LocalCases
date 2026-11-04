@@ -117,6 +117,11 @@ last one needs network; `--bundles deb` skips it. A bundle carries `LICENSE`,
 `NOTICE` and `LICENSES.third-party.md` under `usr/lib/LocalCases/`, which is what
 `dpkg -c` should show before one of these is handed to anyone.
 
+The three manifests that state a version — `tauri.conf.json`, `desktop/Cargo.toml`
+and the engine's `Cargo.toml` — are compared by the shell's build script, which stops
+the build when they differ, so the number the window shows is the number
+`/api/health` reports (see *Integration by upstream apps*).
+
 The shell needs Tauri's system dependencies, which on Debian/Ubuntu are:
 
 ```bash

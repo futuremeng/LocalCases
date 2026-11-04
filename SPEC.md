@@ -132,6 +132,10 @@ Local HTTP, JSON only, no HTML rendering anywhere in the engine.
   every run.
 * Unit tests cover header mapping, identity extraction, date and case-number
   parsing, procedure splitting and the token gate.
+* The version a bundle announces is the version the service reports: the shell's
+  build script reads `tauri.conf.json`, its own manifest and the engine's, and
+  refuses to build when the three differ — `/api/health` answers with the
+  engine's number, and §4 lets a consumer refuse a contract it does not speak.
 
 ### What a run actually reports, and the one expected difference
 
