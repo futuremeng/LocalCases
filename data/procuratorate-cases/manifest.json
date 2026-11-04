@@ -1,0 +1,693 @@
+{
+  "dataset": "procuratorate-cases",
+  "title": "最高人民检察院指导性案例",
+  "version": "1",
+  "generated_at": "2026-11-04T13:58:00Z",
+  "generator": "tools/crawl_procuratorate_cases.py",
+  "scope": "public",
+  "source": {
+    "name": "最高人民检察院指导性案例",
+    "base": "https://www.spp.gov.cn",
+    "channel": "/spp/jczdal/",
+    "listing_pages": 3,
+    "batch_pages": 60
+  },
+  "counts": {
+    "cases": 250,
+    "batches": 60,
+    "with_legal_basis": 229,
+    "without_legal_basis": 21,
+    "with_keywords": 247,
+    "with_guidance": 227,
+    "full_text_chars_total": 899942,
+    "sections": {
+      "要旨": 245,
+      "基本案情": 250,
+      "履职过程": 179,
+      "关键词": 247,
+      "相关规定": 229,
+      "指导意义": 227
+    },
+    "case_numbers_missing": [
+      57,
+      58,
+      59,
+      81,
+      82,
+      83,
+      84,
+      90,
+      91,
+      92,
+      93
+    ],
+    "case_numbers_max": 261,
+    "case_groups": {
+      "(未识别)": 53,
+      "刑事": 123,
+      "民事": 34,
+      "行政": 40
+    },
+    "laws_mentioned_distinct": 296
+  },
+  "checks": {
+    "identity_field": "procuratorate_no",
+    "sort_key": [
+      "procuratorate_no"
+    ],
+    "source_url_pattern": "^https://www\\.spp\\.gov\\.cn/spp/jczdal/\\d{6}/t\\d+_\\d+\\.shtml#检例第[0-9]+号$",
+    "date_field": null,
+    "sections_field": "sections",
+    "required_sections": [
+      "要旨",
+      "基本案情"
+    ],
+    "text_field": "full_text",
+    "publish_gate": {
+      "identifying": {
+        "身份证号": "(?<![0-9])[1-9][0-9]{5}(?:19|20)[0-9]{2}[0-1][0-9][0-3][0-9][0-9]{3}[0-9Xx](?![0-9])",
+        "手机号": "(?<![0-9])1[3-9][0-9]{9}(?![0-9])"
+      },
+      "roles": {
+        "住所地": {
+          "word": "住所地",
+          "valued": "住所地[为是]?[：:]?\\s*([\\u4e00-\\u9fff]{2,20}?(?:省|市|区|县|路|街|号)[^\\s，。；]{0,20})"
+        },
+        "住址": {
+          "word": "住址",
+          "valued": "住址[为是]?[：:]?\\s*([\\u4e00-\\u9fff]{2,20}?(?:省|市|区|县|路|街|号)[^\\s，。；]{0,20})"
+        },
+        "法定代表人": {
+          "word": "法定代表人",
+          "valued": "法定代表人[为是]?[：:]?\\s*([李王张刘陈杨黄赵周吴徐孙马朱胡郭何高林罗郑梁谢宋唐许韩冯邓曹彭曾肖田董袁潘于蒋蔡余杜叶程苏魏吕丁任沈姚卢姜崔钟谭陆汪范金石廖贾夏韦付方白邹孟熊秦邱江尹薛闫段雷侯龙史陶黎贺顾毛郝龚邵万钱严覃武戴莫孔向汤][\\u4e00-\\u9fff某]{1,2})"
+        },
+        "委托代理人": {
+          "word": "委托代理人",
+          "valued": "委托代理人[为是]?[：:]?\\s*([李王张刘陈杨黄赵周吴徐孙马朱胡郭何高林罗郑梁谢宋唐许韩冯邓曹彭曾肖田董袁潘于蒋蔡余杜叶程苏魏吕丁任沈姚卢姜崔钟谭陆汪范金石廖贾夏韦付方白邹孟熊秦邱江尹薛闫段雷侯龙史陶黎贺顾毛郝龚邵万钱严覃武戴莫孔向汤][\\u4e00-\\u9fff某]{1,2})"
+        }
+      }
+    },
+    "number_field": "procuratorate_no",
+    "csv_vs_jsonl": {
+      "原始链接": "source_url",
+      "案件名称": "title",
+      "案件类型": "case_group",
+      "法律依据": "legal_basis"
+    }
+  },
+  "fields": {
+    "原始链接": {
+      "origin": "verbatim + locator",
+      "note": "the batch page plus the 检例 number the page prints as a fragment; several cases share one page and convert keys a document by this column, so without it 250 records collapse into 60"
+    },
+    "案号": {
+      "origin": "empty",
+      "note": "the SPP publishes no 案号 for a 指导性案例; only 第一批 mentions one in prose"
+    },
+    "案件名称": {
+      "origin": "verbatim",
+      "note": "the case name the SPP prints, already anonymised by its own hand (陈某, 某公司)"
+    },
+    "法院": {
+      "origin": "empty",
+      "note": "no 审理法院 field; courts appear in the narrative, often several per case, which is not a field"
+    },
+    "所属地区": {
+      "origin": "empty",
+      "note": "no region field"
+    },
+    "案件类型": {
+      "origin": "derived",
+      "note": "the branch of law 【相关规定】 cites; empty where the citations span branches"
+    },
+    "案件类型编码": {
+      "origin": "derived",
+      "note": "the same reading as a stable code"
+    },
+    "来源": {
+      "origin": "fixed",
+      "note": "最高人民检察院指导性案例"
+    },
+    "审理程序": {
+      "origin": "empty",
+      "note": "no 审理程序 field; the procedural posture is in 基本案情 and 履职过程"
+    },
+    "裁判日期": {
+      "origin": "empty",
+      "note": "the SPP dates the batch notice, not the case"
+    },
+    "公开日期": {
+      "origin": "verbatim",
+      "note": "the batch notice's own date, which is when the SPP published it"
+    },
+    "当事人": {
+      "origin": "empty",
+      "note": "no party list field; the parties appear anonymised throughout the text"
+    },
+    "案由": {
+      "origin": "empty",
+      "note": "no 案由 field; 关键词 is the nearest published facet and is in the JSON"
+    },
+    "法律依据": {
+      "origin": "verbatim",
+      "note": "【相关规定】 / 【相关立法】: the statutes the SPP itself lists for the case"
+    },
+    "全文": {
+      "origin": "verbatim",
+      "note": "title, each published section under its own label, and the 检例 number"
+    }
+  },
+  "pii_census": {
+    "identifying": {
+      "身份证号": 0,
+      "手机号": 0
+    },
+    "role_word": {
+      "住所地": 16,
+      "住址": 4,
+      "法定代表人": 75,
+      "委托代理人": 9
+    },
+    "role_with_value": {
+      "住所地": 10,
+      "住址": 0,
+      "法定代表人": 15,
+      "委托代理人": 1
+    },
+    "role_with_full_name": {
+      "住所地": 0,
+      "住址": 0,
+      "法定代表人": 1,
+      "委托代理人": 0
+    },
+    "named_titles": 51,
+    "named_titles_anonymised": 130
+  },
+  "notes": [
+    "This corpus ships whole. No 身份证号 and no 手机号 appears in it, and no 住址 carries an address; what the gate reports are role words used in the abstract. The 法定代表人 it counted 75 times carries a name 15 times, and the 住所地 it counted 16 times is mostly a rule about which procuratorate has jurisdiction. See the gate block in this manifest.",
+    "51 case titles name a party in full, exactly as the SPP printed them (检例第20号 马世龙…). That is the citation, not a party list this corpus assembled, and it is why this is a case index rather than an anonymised one.",
+    "案号, 法院, 审理程序, 当事人, 案由 and 裁判日期 are empty because the SPP publishes none of them as a field. 法律依据 is not: 【相关规定】 lists the statutes the SPP itself cites, and it is filled for 229 of 250 records.",
+    "案件类型 is derived from which branch of law 【相关规定】 cites, not published. It is empty where a case cites more than one branch: (未识别) 53, 刑事 123, 民事 34, 行政 40.",
+    "The 【…】 labels are not stable across the years: 第二批 (2016) writes 【诉讼过程】 and 【相关立法】 where 第三十三批 onward writes 【检察机关履职过程】 and 【相关规定】, and 第一批 has neither of the last two. Both spellings map to one canonical section, so 相关规定 is not silently empty for 2016 to 2021.",
+    "公开日期 is the date on the batch notice, which is when the SPP published the case; 裁判日期 stays empty because the SPP dates the batch, not the case.",
+    "Several cases share one batch page, so 原始链接 carries the 检例 number as a fragment. convert keys a document by that column and no URL here has a docId=, so the bare page address made every case on it one document -- 250 rows became 60. page_url in the JSON holds the address without it."
+  ],
+  "batches": [
+    {
+      "label": "第六十三批指导性案例",
+      "no": 63,
+      "theme": "刑事抗诉",
+      "date": "2026-07-15",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202608/t20260805_733868.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第六十一批指导性案例",
+      "no": 61,
+      "theme": "依法惩治新型、隐性受贿犯罪",
+      "date": "2026-02-04",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202604/t20260413_725764.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第六十二批指导性案例",
+      "no": 62,
+      "theme": "",
+      "date": "2026-02-26",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202603/t20260303_721548.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第六十批指导性案例",
+      "no": 60,
+      "theme": "刑罚执行监督",
+      "date": "2025-12-30",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202512/t20251231_715173.shtml",
+      "cases": 3
+    },
+    {
+      "label": "第五十九批指导性案例",
+      "no": 59,
+      "theme": "立案和侦查活动监督",
+      "date": "2025-12-11",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202512/t20251223_714267.shtml",
+      "cases": 6
+    },
+    {
+      "label": "第五十八批指导性案例",
+      "no": 58,
+      "theme": "行政生效裁判监督",
+      "date": "2025-03-21",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202505/t20250506_694919.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第五十六批指导性案例",
+      "no": 56,
+      "theme": "民事生效裁判监督",
+      "date": "2025-01-23",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202503/t20250313_690391.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第五十七批指导性案例",
+      "no": 57,
+      "theme": "文物和文化遗产保护",
+      "date": "2025-02-28",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202503/t20250301_686749.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第五十五批指导性案例",
+      "no": 55,
+      "theme": "证券犯罪",
+      "date": "2025-01-03",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202502/t20250221_684846.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第五十四批指导性案例",
+      "no": 54,
+      "theme": "生态环境公益诉讼",
+      "date": "2024-11-08",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202411/t20241113_672976.shtml",
+      "cases": 1
+    },
+    {
+      "label": "第五十三批指导性案例",
+      "no": 53,
+      "theme": "立案和侦查活动监督",
+      "date": "2024-04-23",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202406/t20240613_656910.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第五十一批指导性案例",
+      "no": 51,
+      "theme": "生效行政裁判监督",
+      "date": "2024-04-02",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202405/t20240528_655349.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第五十二批指导性案例",
+      "no": 52,
+      "theme": "不批捕不起诉复议复核及刑事追诉标准",
+      "date": "2024-04-23",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202405/t20240514_654098.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第五十批指导性案例",
+      "no": 50,
+      "theme": "未成年人网络保护",
+      "date": "2024-02-22",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202403/t20240301_646694.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第四十九批指导性案例",
+      "no": 49,
+      "theme": "假释监督",
+      "date": "2023-10-16",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202311/t20231106_633020.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第四十八批指导性案例",
+      "no": 48,
+      "theme": "知识产权检察综合保护",
+      "date": "2023-07-27",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202309/t20230915_628229.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第四十七批指导性案例",
+      "no": 47,
+      "theme": "金融领域新型职务犯罪",
+      "date": "2023-07-31",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202308/t20230822_625566.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第四十六批指导性案例",
+      "no": 46,
+      "theme": "守护国财国土、助推惠民政策落实",
+      "date": "2023-06-29",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202308/t20230803_623811.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第四十五批指导性案例",
+      "no": 45,
+      "theme": "刑事抗诉",
+      "date": "2023-06-25",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202307/t20230706_620879.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第四十四批指导性案例",
+      "no": 44,
+      "theme": "金融犯罪",
+      "date": "2023-05-11",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202306/t20230613_617294.shtml",
+      "cases": 3
+    },
+    {
+      "label": "第四十二批指导性案例",
+      "no": 42,
+      "theme": "",
+      "date": "2023-04-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202304/t20230404_610324.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第四十三批指导性案例",
+      "no": 43,
+      "theme": "未成年人综合司法保护",
+      "date": "2023-02-24",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202303/t20230301_604987.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第四十批指导性案例",
+      "no": 40,
+      "theme": "生态环境公益诉讼",
+      "date": "2022-09-19",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202209/t20220926_579088.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第四十一批指导性案例（万峰湖专案）",
+      "no": 41,
+      "theme": "生态环境公益诉讼",
+      "date": "2022-09-20",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202209/t20220922_578616.shtml",
+      "cases": 1
+    },
+    {
+      "label": "第三十九批指导性案例",
+      "no": 39,
+      "theme": "刑事申诉公开听证",
+      "date": "2022-07-21",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202208/t20220829_575201.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第三十八批指导性案例",
+      "no": 38,
+      "theme": "民事生效裁判监督",
+      "date": "2022-06-28",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202207/t20220715_564318.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第三十七批指导性案例",
+      "no": 37,
+      "theme": "新型毒品犯罪",
+      "date": "2022-06-21",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202206/t20220624_560874.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第三十六批指导性案例",
+      "no": 36,
+      "theme": "行政检察类案监督",
+      "date": "2022-03-03",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202204/t20220418_554485.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第三十五批指导性案例",
+      "no": 35,
+      "theme": "",
+      "date": "2022-03-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202203/t20220307_547759.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第三十四批指导性案例",
+      "no": 34,
+      "theme": "",
+      "date": "2022-02-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202202/t20220221_545125.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第三十三批指导性案例",
+      "no": 33,
+      "theme": "",
+      "date": "2022-02-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202202/t20220214_544449.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第三十一批指导性案例",
+      "no": 31,
+      "theme": "",
+      "date": "2021-12-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202112/t20211223_539547.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第三十二批指导性案例",
+      "no": 32,
+      "theme": "",
+      "date": "2021-12-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202112/t20211209_538468.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第三十批指导性案例",
+      "no": 30,
+      "theme": "",
+      "date": "2021-09-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202109/t20210927_531081.shtml",
+      "cases": 6
+    },
+    {
+      "label": "第二十九批指导性案例",
+      "no": 29,
+      "theme": "",
+      "date": "2021-09-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202109/t20210902_528296.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第二十八批指导性案例",
+      "no": 28,
+      "theme": "",
+      "date": "2021-05-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202105/t20210510_517577.shtml",
+      "cases": 3
+    },
+    {
+      "label": "第二十七批指导性案例",
+      "no": 27,
+      "theme": "",
+      "date": "2021-03-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202103/t20210303_510511.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第二十六批指导性案例",
+      "no": 26,
+      "theme": "",
+      "date": "2021-02-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202102/t20210208_508845.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第二十五批指导性案例",
+      "no": 25,
+      "theme": "",
+      "date": "2021-01-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202101/t20210127_507779.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第二十三批指导性案例",
+      "no": 23,
+      "theme": "",
+      "date": "2020-12-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202012/t20201214_488891.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第二十一批指导性案例",
+      "no": 21,
+      "theme": "",
+      "date": "2020-07-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202007/t20200728_474141.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第二十批指导性案例",
+      "no": 20,
+      "theme": "",
+      "date": "2020-07-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202007/t20200721_473570.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第十九批指导性案例",
+      "no": 19,
+      "theme": "",
+      "date": "2020-06-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202006/t20200603_464064.shtml",
+      "cases": 3
+    },
+    {
+      "label": "第十八批指导性案例",
+      "no": 18,
+      "theme": "",
+      "date": "2020-04-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202004/t20200408_458415.shtml",
+      "cases": 3
+    },
+    {
+      "label": "第十七批指导性案例",
+      "no": 17,
+      "theme": "",
+      "date": "2020-03-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202003/t20200325_457287.shtml",
+      "cases": 3
+    },
+    {
+      "label": "第十六批指导性案例",
+      "no": 16,
+      "theme": "",
+      "date": "2020-03-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/202003/t20200305_455868.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第十四批指导性案例",
+      "no": 14,
+      "theme": "",
+      "date": "2019-05-21",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201905/t20190522_419072.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第十三批指导性案例",
+      "no": 13,
+      "theme": "",
+      "date": "2018-12-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201812/t20181225_403363.shtml",
+      "cases": 3
+    },
+    {
+      "label": "第十二批指导性案例",
+      "no": 12,
+      "theme": "",
+      "date": "2018-12-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201812/t20181219_402920.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第十一批指导性案例",
+      "no": 11,
+      "theme": "",
+      "date": "2018-11-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201811/t20181118_399377.shtml",
+      "cases": 3
+    },
+    {
+      "label": "第十批指导性案例",
+      "no": 10,
+      "theme": "",
+      "date": "2018-07-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201807/t20180712_384673.shtml",
+      "cases": 3
+    },
+    {
+      "label": "第九批指导性案例",
+      "no": 9,
+      "theme": "",
+      "date": "2017-10-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201710/t20171017_202593.shtml",
+      "cases": 6
+    },
+    {
+      "label": "第八批指导性案例",
+      "no": 8,
+      "theme": "",
+      "date": "2017-01-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201701/t20170104_177552.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第七批指导性案例",
+      "no": 7,
+      "theme": "",
+      "date": "2016-08-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201608/t20160811_163240.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第六批指导性案例",
+      "no": 6,
+      "theme": "",
+      "date": "2016-08-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201608/t20160811_163238.shtml",
+      "cases": 4
+    },
+    {
+      "label": "第五批指导性案例",
+      "no": 5,
+      "theme": "",
+      "date": "2016-08-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201608/t20160811_163174.shtml",
+      "cases": 3
+    },
+    {
+      "label": "第四批指导性案例",
+      "no": 4,
+      "theme": "",
+      "date": "2016-08-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201608/t20160811_162641.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第三批指导性案例",
+      "no": 3,
+      "theme": "",
+      "date": "2016-08-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201608/t20160811_162304.shtml",
+      "cases": 3
+    },
+    {
+      "label": "第二批指导性案例",
+      "no": 2,
+      "theme": "",
+      "date": "2016-08-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201608/t20160811_162303.shtml",
+      "cases": 5
+    },
+    {
+      "label": "第一批指导性案例",
+      "no": 1,
+      "theme": "",
+      "date": "2016-08-01",
+      "url": "https://www.spp.gov.cn/spp/jczdal/201608/t20160811_162301.shtml",
+      "cases": 3
+    }
+  ],
+  "redistribution": {
+    "basis": "指导性案例 published by the 最高人民检察院 on its own site; judicial documents outside copyright under 著作权法 第五条",
+    "publisher": "最高人民检察院"
+  },
+  "files": {
+    "cases.jsonl": {
+      "sha256": "93859270f5db539bd954109ecc600a604b0b8af236e80811a71cc53a81261c23",
+      "bytes": 5439134,
+      "records": 250
+    },
+    "cases.csv": {
+      "sha256": "6b3909dab9a9caa2c20ff128778837e14e2700e472344be27e9cd4e804acf165",
+      "bytes": 2822994,
+      "records": 250
+    }
+  }
+}

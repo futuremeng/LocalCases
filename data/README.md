@@ -25,6 +25,13 @@ commit it.
 | --- | --- | --- |
 | [`guiding-cases/`](guiding-cases/) | 279 cases + 15 notices | 最高人民法院指导性案例, 指导案例1号 through 指导性案例279号, as published on court.gov.cn (指导案例45号, which the site never gave a page, from a documented court mirror) |
 | [`gazette-cases/`](gazette-cases/) | 445 documents | 最高人民法院公报·裁判文书选登, 2003–2026: 案号, 法院, 文书类型 and 裁判摘要 for every one — and, by design, not the judgment text |
+| [`procuratorate-cases/`](procuratorate-cases/) | 250 cases | 最高人民检察院指导性案例, 检例第1号 through 第261号, in full: the SPP anonymises its own cases, so this one ships whole, and it is the only corpus here with a published 法律依据 |
+
+Three corpora, three different answers to what may be shipped, which is the
+thing worth reading before adding a fourth: the guiding cases name their parties
+as 某 by the publisher's hand, the Gazette prints 身份证号 so only the citation
+ships, and the SPP's cases name real parties in the case title and nothing that
+identifies them to a stranger.
 
 Each dataset directory holds `manifest.json` (hashes, counts, field
 definitions, provenance, and the checks `tools/check_dataset.py` should run

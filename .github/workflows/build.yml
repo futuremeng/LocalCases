@@ -123,6 +123,30 @@ jobs:
           ./target/release/check${{ matrix.exe }} work/ci-gazette.toml
           python3 tools/check_dataset.py --dir data/gazette-cases
 
+      - name: the procuratorate corpus imports whole and its gate holds
+        # Two things to prove here that no other corpus needs. The batch pages
+        # carry several cases each, and convert keys a document by 原始链接, so a
+        # corpus whose URL is a page address imports 250 rows as 60 documents and
+        # calls the other 190 duplicates -- this is the corpus that found that.
+        # And its publish gate reports rather than splits: the SPP anonymises its
+        # own cases, so the check worth having is that no 身份证号 and no 手机号
+        # reached the shipped text.
+        run: |
+          mkdir -p work
+          cat > work/ci-procuratorate.toml <<TOML
+          db = "work/library-procuratorate"
+          index_path = "work/index-procuratorate"
+          addr = "127.0.0.1:5013"
+          index_with_full_text = true
+          raw_data_path = "data/procuratorate-cases"
+          TOML
+          ./target/release/convert${{ matrix.exe }} work/ci-procuratorate.toml --compact 2>&1 | tee convert-pc.log
+          # 250 rows in, 250 documents out: the identity is per case, not per page
+          grep -q "rows 250 parsed 250 csv_errors 0 kept 250 dup 0" convert-pc.log
+          ./target/release/index${{ matrix.exe }} work/ci-procuratorate.toml
+          ./target/release/check${{ matrix.exe }} work/ci-procuratorate.toml
+          python3 tools/check_dataset.py --dir data/procuratorate-cases
+
       - name: the service answers what the README says it answers
         run: |
           ./target/release/serve${{ matrix.exe }} work/ci.toml > serve.log 2>&1 &

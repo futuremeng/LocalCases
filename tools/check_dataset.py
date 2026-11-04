@@ -224,26 +224,47 @@ def main():
     # promises that the text it ships holds none of these patterns; this reads
     # the shipped CSV and confirms it, so the promise is a property of the
     # repository rather than of the build that produced it.
-    if want.get("publish_gate"):
+    gate = want.get("publish_gate")
+    if gate:
+        # A corpus that declares a gate promises that the text it ships holds
+        # none of these patterns; this reads the shipped CSV and confirms it, so
+        # the promise is a property of the repository rather than of the build
+        # that produced it. When the manifest spells the patterns out, they are
+        # run as written; `true` means the built-in set, which is what the
+        # Gazette corpus was gated with.
         print("publish gate")
+        if gate is True:
+            identifying = {k: v.pattern for k, v in PII_PATTERNS.items()}
+            roles = {}
+        else:
+            identifying = gate.get("identifying", {})
+            roles = gate.get("roles", {})
         leaked = {}
         for row in rows:
-            for label, rx in PII_PATTERNS.items():
-                if rx.search(row["全文"]):
+            for label, pat in identifying.items():
+                if re.search(pat, row["全文"]):
                     leaked.setdefault(label, []).append(row["案件名称"][:24])
         for label, names in sorted(leaked.items()):
             check(False, "shipped 全文 holds no %s (%d row(s), e.g. %s)"
                   % (label, len(names), names[0]))
         if not leaked:
-            check(True, "shipped 全文 holds none of %s" % " / ".join(PII_PATTERNS))
+            check(True, "shipped 全文 holds none of %s" % " / ".join(identifying))
+        for label, pair in sorted(roles.items()):
+            word = sum(len(re.findall(pair["word"], r["全文"])) for r in rows)
+            valued = sum(len(re.findall(pair["valued"], r["全文"])) for r in rows)
+            print("  note %-12s word %d, with a value %d" % (label, word, valued))
         held = manifest["counts"].get("body_chars_total", 0)
-        print("  note %d characters of judgment body are held back by design" % held)
+        if held:
+            print("  note %d characters of judgment body are held back by design" % held)
 
     # The other side of the same promise: a corpus held back on purpose should
     # say how much it holds back, so the reason it is not in the repository is a
     # measured fact in its manifest rather than a comment someone can forget.
     if want.get("pii_census"):
-        print("personal-data census (this corpus is held back, not shipped)")
+        held_back = manifest.get("scope") == "local"
+        print("personal-data census (%s)"
+              % ("this corpus is held back, not shipped" if held_back
+                 else "this corpus ships; what the census found stays in it"))
         census, rows_with = {}, 0
         for row in rows:
             found = False
@@ -256,9 +277,12 @@ def main():
         for label in PII_PATTERNS:
             if label in census:
                 print("  note %6d %s" % (census[label], label))
-        print("  note %6d of %d rows carry at least one, which is why this lives"
-              " under local_data/\n"
-              "       and not in the repository" % (rows_with, len(rows)))
+        if held_back:
+            print("  note %6d of %d rows carry at least one, which is why this lives"
+                  " under local_data/\n       and not in the repository"
+                  % (rows_with, len(rows)))
+        else:
+            print("  note %6d of %d rows carry at least one" % (rows_with, len(rows)))
 
     print("summary")
     print("  %d records, %s characters of 全文" % (counts["cases"],

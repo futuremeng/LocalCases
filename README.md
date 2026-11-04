@@ -48,14 +48,15 @@ kept honest across changes.
 
 ## Try it without a corpus of your own
 
-Two corpora ship with the repository, both official documents the Supreme
-People's Court publishes for courts to refer to, both with every published
+Three corpora ship with the repository, each an official document a state organ
+publishes for courts and procuratorates to refer to, each with every published
 section kept separate and every derived column labelled in `manifest.json`:
 
 | corpus | records | what is filled that the other is not |
 | --- | --- | --- |
 | `data/guiding-cases/` | 279 指导性案例 + 15 发布通知 | 关键词, 裁判要点, 相关法条 |
 | `data/gazette-cases/` | 445 公报裁判文书, 2003–2026 | 法院, 案号, 审理程序 — and 裁判摘要 in place of a 要点 |
+| `data/procuratorate-cases/` | 250 检察指导性案例, 检例第1–261号 | 法律依据 as the publisher itself lists it — the only corpus here where that column is not empty |
 
 Import either to see the whole pipeline in seconds instead of minutes:
 
@@ -74,10 +75,12 @@ python3 tools/check_dataset.py --dir data/gazette-cases   # the dataset against 
 Measured: guiding-cases `rows 279 kept 279 dup 0 no_doc_id 0 empty_text 0 chars
 780339`, `search=证据保全` 5 hits; gazette-cases `rows 445 kept 445 dup 0
 no_doc_id 0 empty_text 0 chars 148636`, `search=专利` 51 hits and
-`court=最高人民法院赔偿委员会` 9. Both build a library with 0 failures. The tools
-that built them are `tools/crawl_guiding_cases.py` and
-`tools/build_gazette_cases.py`; `data/README.md` says what a bundled dataset is
-allowed to be, and what a corpus may therefore not contain.
+`court=最高人民法院赔偿委员会` 9; procuratorate-cases `rows 250 kept 250 dup 0
+no_doc_id 0 empty_text 0 chars 899942`, `search=正当防卫` 5 hits and
+`search=再审抗诉` 7. All three build a library with 0 failures. The tools that
+built them are `tools/crawl_guiding_cases.py`, `tools/build_gazette_cases.py` and
+`tools/crawl_procuratorate_cases.py`; `data/README.md` says what a bundled dataset
+is allowed to be, and what a corpus may therefore not contain.
 
 ## Import format
 
@@ -250,7 +253,7 @@ Three limits worth knowing:
 | `src/bin/index.rs` | library → index |
 | `src/bin/check.rs`, `src/bin/compare.rs` | self-verification of a library |
 | `tools/` | verification against the source CSVs, API spot checks, fingerprint comparison, dataset crawl and check, third-party license inventory |
-| `data/` | the datasets this repository ships (guiding cases, Gazette cases), each with a manifest that addresses every file by sha256 — line endings are part of what it hashes, so the generators write LF, which is what `.gitattributes` pins the tree to |
+| `data/` | the datasets this repository ships (guiding cases, Gazette cases, procuratorate cases), each with a manifest that addresses every file by sha256 — line endings are part of what it hashes, so the generators write LF, which is what `.gitattributes` pins the tree to |
 | `ui/`, `desktop/` | the desktop front-end and Tauri shell |
 
 ## Data, and what you are agreeing to
@@ -264,11 +267,14 @@ listens on loopback by default.
 
 What `data/` holds is a deliberate exception, and it is shaped by the same
 reasoning rather than exempt from it: official documents a state organ publishes
-for public use, every record carrying the URL it came from, and — where the
-publisher printed the parties in full, as the 公报 does — only the part that is a
-case citation ships, with the judgment text left in `local_data/`. The rule a
-dataset has to meet to be bundled here, and the rule that decides what a bundled
-dataset must leave out, are both in `data/README.md`.
+for public use, every record carrying the URL it came from. Where a publisher
+prints what identifies a person — the 公报 prints 身份证号 and 住所地, because a
+judgment is meant to identify the parties — only the part that is a case citation
+ships, with the judgment text left in `local_data/`. Where the publisher anonymises
+its own cases, the corpus ships whole; where it names a party in the case title,
+that name is the citation and stays. The rule a dataset has to meet to be bundled
+here, and the rule that decides what a bundled dataset must leave out, are both in
+`data/README.md`.
 
 Nothing in LocalCases redacts anything. A name, an address or an ID number survives
 import, search, the detail view and the CSV export exactly as your source file held
