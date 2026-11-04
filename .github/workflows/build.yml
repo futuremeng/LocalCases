@@ -72,15 +72,17 @@ jobs:
 
       # The whole pipeline on the corpus the repository ships: seconds rather than
       # minutes, and it ends with the dataset checked against its own manifest.
+      # Every path is relative to this step's directory: on Windows the runner's
+      # bash reports $PWD as /d/a/..., which Rust then reads as a missing path.
       - name: import, index and self-check the bundled dataset
         run: |
           mkdir -p work
           cat > work/ci.toml <<TOML
-          db = "$PWD/work/library"
-          index_path = "$PWD/work/index"
+          db = "work/library"
+          index_path = "work/index"
           addr = "127.0.0.1:5010"
           index_with_full_text = true
-          raw_data_path = "$PWD/data/guiding-cases"
+          raw_data_path = "data/guiding-cases"
           TOML
           ./target/release/convert${{ matrix.exe }} work/ci.toml --compact
           ./target/release/index${{ matrix.exe }} work/ci.toml
@@ -159,6 +161,16 @@ jobs:
             desktop/target
           key: ${{ runner.os }}-desktop-${{ hashFiles('desktop/Cargo.lock') }}
 
+      - name: tauri-cli
+        run: cargo install tauri-cli --locked --version "^2"
+
+      # The repository carries one icon, the PNG tools/make_icon.py writes; the
+      # platform formats are build products, and tauri-build stops on Windows
+      # without icon.ico. So they are generated before anything is compiled, which
+      # is also what a Windows contributor has to do once by hand.
+      - name: icons
+        run: cargo tauri icon desktop/icons/icon.png -o desktop/icons
+
       # The version assertion lives in desktop/build.rs: it compares
       # tauri.conf.json, desktop/Cargo.toml and the engine's Cargo.toml and stops
       # the build when they differ. This step is where it runs.
@@ -166,12 +178,11 @@ jobs:
         working-directory: desktop
         run: cargo check --locked
 
-      - name: tauri-cli
-        run: cargo install tauri-cli --locked --version "^2"
-
+      # `tauri bundle` only wraps binaries that already exist; `tauri build` is the
+      # one that compiles them first.
       - name: bundle
         working-directory: desktop
-        run: cargo tauri bundle --bundles ${{ matrix.bundles }}
+        run: cargo tauri build --bundles ${{ matrix.bundles }}
 
       # A .app is a directory and a release asset is a file, so macOS hands over
       # the zip `ditto` is meant to produce -- `--keepParent` keeps the .app itself

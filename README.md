@@ -134,6 +134,12 @@ Without them `cargo check` in `desktop/` stops in a C build script (first at
 `libdbus-sys`, then at the GTK/WebKit crates) rather than in this code, so install
 them before reporting a desktop build failure.
 
+Windows needs one step more before the first build. The repository carries a single
+`desktop/icons/icon.png`; the platform formats are build products, so run
+`cargo tauri icon desktop/icons/icon.png -o desktop/icons` once — without `icon.ico`
+Tauri stops while generating the Windows resource file, before compiling anything.
+CI runs that command on every build.
+
 The desktop is a separate Cargo workspace, so its dependency tree differs from the
 engine's; `tauri.conf.json` ships `LICENSE`, `NOTICE` and a `LICENSES.third-party.md`
 inside the bundle. Generate that list from inside `desktop/` before packaging:
