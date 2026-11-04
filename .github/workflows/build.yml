@@ -173,13 +173,81 @@ jobs:
         working-directory: desktop
         run: cargo tauri bundle --bundles ${{ matrix.bundles }}
 
+      # A .app is a directory and a release asset is a file, so macOS hands over
+      # the zip `ditto` is meant to produce -- `--keepParent` keeps the .app itself
+      # inside it, which is what a reader drags onto Applications.
+      - name: stage the bundle
+        working-directory: desktop/target/release/bundle
+        run: |
+          if [ "$(uname)" = Darwin ]; then
+            app=(macos/*.app)
+            ditto -c -k --keepParent "${app[0]}" "${app[0]}.zip"
+          fi
+
       - name: artifacts
         uses: actions/upload-artifact@v4
         with:
           name: LocalCases-${{ matrix.os }}
           path: |
             desktop/target/release/bundle/deb/*.deb
-            desktop/target/release/bundle/macos/*.app
+            desktop/target/release/bundle/macos/*.zip
             desktop/target/release/bundle/msi/*.msi
           if-no-files-found: error
+
+  release:
+    name: release
+    if: startsWith(github.ref, 'refs/tags/v')
+    needs: [engine, desktop]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v5
+
+      # A tag is a version claim, so it is checked against the manifests the same
+      # way the build script checks the manifests against each other: v0.4.0 on a
+      # tree whose Cargo.toml says 0.3.0 is a release nobody can consume, because
+      # /api/health would answer a different number than the filename promises.
+      - name: the tag is the version
+        run: |
+          manifest=$(sed -n 's/^version = "\([^"]*\)"/\1/p' Cargo.toml | head -1)
+          if [ "${GITHUB_REF_NAME#v}" != "$manifest" ]; then
+            echo "tag ${GITHUB_REF_NAME} says ${GITHUB_REF_NAME#v}, Cargo.toml says $manifest" >&2
+            exit 1
+          fi
+          echo "LocalCases $manifest"
+
+      - uses: actions/download-artifact@v4
+        with:
+          path: bundles
+
+      - name: publish
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          # `find -quit` is a BSD extension, so the guard counts with head instead
+          # of asking find to stop early.
+          first=$(find bundles -type f | head -1)
+          if [ -z "$first" ]; then
+            echo "no bundle came out of the desktop job" >&2
+            exit 1
+          fi
+          find bundles -type f | sort
+          # quoted delimiter: the notes talk about `LICENSE` and `dpkg -c`, and an
+          # unquoted heredoc would run those backticks as commands
+          cat > notes.md <<'MD'
+          Offline search over your own corpus of court judgments: the engine, the CLI
+          and a desktop window. Nothing is uploaded, there is no account, and this
+          release carries no judgment corpus -- see the README on what importing one
+          means you have agreed to.
+
+          Each bundle carries `LICENSE`, `NOTICE` and `LICENSES.third-party.md`; on
+          Linux, `dpkg -c` should show them under `usr/lib/LocalCases/`. The version
+          in the window's About box is the version `/api/health` reports, and the
+          shell's build script refuses to build when the two manifests disagree.
+          MD
+          gh release create "$GITHUB_REF_NAME" \
+            --title "LocalCases $GITHUB_REF_NAME" \
+            --notes-file notes.md \
+            $(find bundles -type f)
 
