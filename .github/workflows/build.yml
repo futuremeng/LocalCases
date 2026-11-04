@@ -14,6 +14,11 @@ name: build
 on:
   push:
     branches: [main]
+    # A tag is how a release gets cut. The same six jobs run there as on a push,
+    # because a binary published from a tree that fails a check is worse than no
+    # binary; the release job at the bottom is the only thing that behaves
+    # differently, and it refuses a tag the manifests do not agree with.
+    tags: ['v*']
   pull_request:
   workflow_dispatch:
 
