@@ -134,11 +134,12 @@ Without them `cargo check` in `desktop/` stops in a C build script (first at
 `libdbus-sys`, then at the GTK/WebKit crates) rather than in this code, so install
 them before reporting a desktop build failure.
 
-Windows needs one step more before the first build. The repository carries a single
-`desktop/icons/icon.png`; the platform formats are build products, so run
-`cargo tauri icon desktop/icons/icon.png -o desktop/icons` once — without `icon.ico`
-Tauri stops while generating the Windows resource file, before compiling anything.
-CI runs that command on every build.
+Windows needs one file the other two do not: `desktop/icons/icon.ico`, which Tauri
+reads while generating the Windows resource file, before it compiles anything. The
+platform formats are committed next to the PNG that `tools/make_icon.py` writes, so a
+fresh clone builds on all three systems; after changing the artwork, regenerate them
+with `cargo tauri icon desktop/icons/icon.png` (its mobile and MSIX output is
+gitignored — this app ships desktop bundles only).
 
 The desktop is a separate Cargo workspace, so its dependency tree differs from the
 engine's; `tauri.conf.json` ships `LICENSE`, `NOTICE` and a `LICENSES.third-party.md`

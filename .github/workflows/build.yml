@@ -164,13 +164,6 @@ jobs:
       - name: tauri-cli
         run: cargo install tauri-cli --locked --version "^2"
 
-      # The repository carries one icon, the PNG tools/make_icon.py writes; the
-      # platform formats are build products, and tauri-build stops on Windows
-      # without icon.ico. So they are generated before anything is compiled, which
-      # is also what a Windows contributor has to do once by hand.
-      - name: icons
-        run: cargo tauri icon desktop/icons/icon.png -o desktop/icons
-
       # The version assertion lives in desktop/build.rs: it compares
       # tauri.conf.json, desktop/Cargo.toml and the engine's Cargo.toml and stops
       # the build when they differ. This step is where it runs.

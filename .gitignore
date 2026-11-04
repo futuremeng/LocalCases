@@ -12,4 +12,9 @@ __pycache__/
 /search_index*/
 /desktop/target/
 /desktop/gen/
+# `cargo tauri icon` writes mobile and MSIX formats for platforms this app does not ship
+/desktop/icons/android/
+/desktop/icons/ios/
+/desktop/icons/Square*Logo.png
+/desktop/icons/StoreLogo.png
 /work/

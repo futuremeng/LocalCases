@@ -28,7 +28,11 @@
     "publisher": "LocalCases contributors",
     "longDescription": "Search a local corpus of court judgments: full-text search, facets by court, year, case type and procedure, and CSV export. The library stays on your own disk; a remote mode reads a corpus hosted on another machine through a loopback forwarder, so nothing is uploaded.",
     "icon": [
-      "icons/icon.png"
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
     ],
     "resources": [
       "LICENSE",

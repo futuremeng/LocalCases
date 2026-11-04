@@ -58,6 +58,12 @@ def main():
     ap.add_argument("--repo", default=".")
     args = ap.parse_args()
 
+    # A Windows console hands stdout the active code page (cp1252 on the runners),
+    # and this report is full of the Chinese section names it cannot encode -- the
+    # check then died printing the result of a check that had passed.
+    if hasattr(sys.stdout, "reconfigure"):
+        sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+
     root = Path(args.dir)
     repo = Path(args.repo)
     manifest = json.loads((root / "manifest.json").read_text(encoding="utf-8"))
