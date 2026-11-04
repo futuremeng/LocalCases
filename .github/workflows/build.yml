@@ -43,18 +43,6 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # Windows runners check text out with core.autocrlf=true, which rewrites the
-      # dataset's LF into CRLF -- and data/*/manifest.json addresses every file by
-      # sha256 and byte count, so the checker would be reading a different dataset
-      # than the manifest describes. The fix belongs in a .gitattributes at the
-      # source; until that is possible, the runner is told not to convert, and the
-      # tree is written out again under that setting.
-      - name: line endings
-        if: runner.os == 'Windows'
-        run: |
-          git config core.autocrlf false
-          git checkout --force HEAD
-
       # rust-version is 1.92 and every runner's stable is newer, so the version is
       # printed rather than pinned: a runner that fell behind the manifest fails in
       # the build step, not somewhere quieter.

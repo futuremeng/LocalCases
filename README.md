@@ -242,7 +242,7 @@ Three limits worth knowing:
 | `src/bin/index.rs` | library → index |
 | `src/bin/check.rs`, `src/bin/compare.rs` | self-verification of a library |
 | `tools/` | verification against the source CSVs, API spot checks, fingerprint comparison, dataset crawl and check, third-party license inventory |
-| `data/` | the datasets this repository ships (guiding cases), each with a manifest and a README |
+| `data/` | the datasets this repository ships (guiding cases), each with a manifest that addresses every file by sha256 — line endings are part of what it hashes, which is what `.gitattributes` is for |
 | `ui/`, `desktop/` | the desktop front-end and Tauri shell |
 
 ## Data, and what you are agreeing to

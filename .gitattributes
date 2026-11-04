@@ -1,0 +1,10 @@
+# The dataset is content-addressed: manifest.json records a sha256 and a byte count
+# for every file, so a checkout that rewrites line endings changes the corpus without
+# changing a line of engine code, and the hash check fails on Windows alone. LF in the
+# working tree is therefore not a style preference; it is what the hashes describe.
+* text=auto eol=lf
+
+# Not text: git must not guess, and a wrong guess corrupts them.
+*.png binary
+*.ico binary
+*.icns binary
