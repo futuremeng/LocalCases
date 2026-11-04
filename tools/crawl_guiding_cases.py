@@ -101,6 +101,31 @@ CSV_COLUMNS = ["原始链接", "案号", "案件名称", "法院", "所属地区
                "案件类型编码", "来源", "审理程序", "裁判日期", "公开日期",
                "当事人", "案由", "法律依据", "全文"]
 
+# What check_dataset.py should assert about this dataset. It lives in the
+# manifest it describes rather than in the checker, so a second corpus can be
+# added without editing the checker, and so a corpus that stops matching the
+# importer fails loudly instead of quietly checking nothing.
+CHECKS = {
+    "identity_field": "case_no",
+    "number_field": "case_no",
+    "sort_key": ["case_no"],
+    "source_url_pattern": r"^https://(www\.court\.gov\.cn/shenpan/xiangqing/\d+\.html"
+                          r"|hnlyzy\.hncourt\.gov\.cn/public/detail\.php\?id=\d+)$",
+    "date_field": "publish_date",
+    "sections_field": "sections",
+    "required_sections": ["关键词", "基本案情", "裁判结果", "裁判理由", "相关法条"],
+    "any_section_suffix": "要点",
+    "extra_files": {"notices.jsonl": "notices"},
+    "text_field": "full_text",
+    "csv_vs_jsonl": {
+        "原始链接": "source_url",
+        "案件名称": "title_full",
+        "公开日期": "publish_date",
+        "案件类型": "case_group",
+        "法律依据": "sections.相关法条",
+    },
+}
+
 # Cases the SPC announced but never published a page for in the 指导案例
 # listing. The 第10批 notice announces 指导案例45-52号; the listing carries
 # 46-52 but no page for 45号 (checked: no xiangqing page exists for it), so
@@ -606,7 +631,12 @@ def main():
             fh.write(json.dumps(rec, ensure_ascii=False, sort_keys=True) + "\n")
     csv_path = out / "cases.csv"
     with open(csv_path, "w", encoding="utf-8", newline="") as fh:
-        writer = csv.DictWriter(fh, fieldnames=CSV_COLUMNS, quoting=csv.QUOTE_MINIMAL)
+        # LF, not the csv module's default CRLF: .gitattributes pins this tree to
+        # eol=lf, so git stores the blob with LF whatever the writer emits, and the
+        # manifest hashes the file on disk. A CRLF file here records a hash no
+        # checkout can reproduce.
+        writer = csv.DictWriter(fh, fieldnames=CSV_COLUMNS, quoting=csv.QUOTE_MINIMAL,
+                                lineterminator="\n")
         writer.writeheader()
         for rec in cases:
             writer.writerow(csv_row(rec))
@@ -649,6 +679,7 @@ def main():
         },
         "files": files,
         "fields": FIELD_DOC,
+        "checks": CHECKS,
         "notes": [
             "指导案例45号 is announced by 第10批 (指导案例45-52号) but the site's 指导案例 "
             "listing publishes no page for it, and no xiangqing page exists for it; its "

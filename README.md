@@ -48,14 +48,19 @@ kept honest across changes.
 
 ## Try it without a corpus of your own
 
-`data/guiding-cases/` is a 279-record corpus the repository does ship: the
-Supreme People's Court's own guiding cases (指导案例1号 to 指导性案例279号), read
-off court.gov.cn, with every published section kept separate and every derived
-column labelled in `manifest.json`. Import it to see the whole pipeline in
-seconds instead of minutes:
+Two corpora ship with the repository, both official documents the Supreme
+People's Court publishes for courts to refer to, both with every published
+section kept separate and every derived column labelled in `manifest.json`:
+
+| corpus | records | what is filled that the other is not |
+| --- | --- | --- |
+| `data/guiding-cases/` | 279 指导性案例 + 15 发布通知 | 关键词, 裁判要点, 相关法条 |
+| `data/gazette-cases/` | 445 公报裁判文书, 2003–2026 | 法院, 案号, 审理程序 — and 裁判摘要 in place of a 要点 |
+
+Import either to see the whole pipeline in seconds instead of minutes:
 
 ```toml
-raw_data_path = "data/guiding-cases"
+raw_data_path = "data/gazette-cases"
 index_with_full_text = true      # the text lives in 全文; unindexed means unsearchable
 ```
 
@@ -63,13 +68,16 @@ index_with_full_text = true      # the text lives in 全文; unindexed means uns
 ./target/release/convert config.toml --compact
 ./target/release/index   config.toml
 ./target/release/check   config.toml
-python3 tools/check_dataset.py            # the dataset against its own manifest
+python3 tools/check_dataset.py --dir data/gazette-cases   # the dataset against its own manifest
 ```
 
-Measured: `rows 279 kept 279 dup 0 no_doc_id 0 empty_text 0 chars 780339`, index
-279 documents, `check` 0 failures, and `search=证据保全` answers 5 hits. The
-crawler that built it is `tools/crawl_guiding_cases.py`; `data/README.md` says
-what a bundled dataset is allowed to be.
+Measured: guiding-cases `rows 279 kept 279 dup 0 no_doc_id 0 empty_text 0 chars
+780339`, `search=证据保全` 5 hits; gazette-cases `rows 445 kept 445 dup 0
+no_doc_id 0 empty_text 0 chars 148636`, `search=专利` 51 hits and
+`court=最高人民法院赔偿委员会` 9. Both build a library with 0 failures. The tools
+that built them are `tools/crawl_guiding_cases.py` and
+`tools/build_gazette_cases.py`; `data/README.md` says what a bundled dataset is
+allowed to be, and what a corpus may therefore not contain.
 
 ## Import format
 
@@ -247,16 +255,20 @@ Three limits worth knowing:
 
 ## Data, and what you are agreeing to
 
-This project ships **no judgment corpus**. Judgments contain names, addresses,
-phone numbers and company details of real people: importing, storing, sharing or
-publishing them is your responsibility, and in most places that means you need a
-lawful basis to process them. Keep the library directory like the data itself —
-the `.gitignore` here excludes it, and the API listens on loopback by default.
+This project ships **no corpus of the judgments a user imports**. Judgments
+contain names, addresses, phone numbers and company details of real people:
+importing, storing, sharing or publishing them is your responsibility, and in
+most places that means you need a lawful basis to process them. Keep the library
+directory like the data itself — the `.gitignore` here excludes it, and the API
+listens on loopback by default.
 
-The one exception is `data/`, and it is a deliberate one: official documents a
-state organ publishes for public use, whose parties the publisher itself
-anonymises, small enough to check by hand, every record carrying the URL it came
-from. `data/README.md` states the rule a dataset has to meet to be bundled here.
+What `data/` holds is a deliberate exception, and it is shaped by the same
+reasoning rather than exempt from it: official documents a state organ publishes
+for public use, every record carrying the URL it came from, and — where the
+publisher printed the parties in full, as the 公报 does — only the part that is a
+case citation ships, with the judgment text left in `local_data/`. The rule a
+dataset has to meet to be bundled here, and the rule that decides what a bundled
+dataset must leave out, are both in `data/README.md`.
 
 Nothing in LocalCases redacts anything. A name, an address or an ID number survives
 import, search, the detail view and the CSV export exactly as your source file held

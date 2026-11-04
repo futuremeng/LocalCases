@@ -103,6 +103,26 @@ jobs:
           ./target/release/check${{ matrix.exe }} work/ci.toml
           python3 tools/check_dataset.py
 
+      - name: every bundled dataset matches its manifest, and the shipped one is clean
+        # The gazette corpus is where the publish gate matters: its upstream
+        # documents carry 身份证号 and 住所地, and only the builder's gate keeps them
+        # out of the repository. A gate that only runs when someone remembers to
+        # run it is not a gate, so it runs here, on every push, from the files a
+        # checkout actually contains.
+        run: |
+          mkdir -p work
+          cat > work/ci-gazette.toml <<TOML
+          db = "work/library-gazette"
+          index_path = "work/index-gazette"
+          addr = "127.0.0.1:5012"
+          index_with_full_text = true
+          raw_data_path = "data/gazette-cases"
+          TOML
+          ./target/release/convert${{ matrix.exe }} work/ci-gazette.toml --compact
+          ./target/release/index${{ matrix.exe }} work/ci-gazette.toml
+          ./target/release/check${{ matrix.exe }} work/ci-gazette.toml
+          python3 tools/check_dataset.py --dir data/gazette-cases
+
       - name: the service answers what the README says it answers
         run: |
           ./target/release/serve${{ matrix.exe }} work/ci.toml > serve.log 2>&1 &

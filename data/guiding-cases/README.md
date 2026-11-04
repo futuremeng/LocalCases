@@ -6,11 +6,12 @@ no page on the site itself and comes from a documented mirror, see Gaps) and
 **15 batch notices** (发布第N批指导性案例的通知). 780,339 characters of
 judgment text, 2.3 MB of CSV.
 
-This is the corpus the project's own README says it does not ship: it ships no
-*judgment* corpus. Guiding cases are the exception — they are official
-documents the SPC publishes precisely so that courts refer to them, the
-publisher anonymises the parties itself (西某工业软件有限公司, 艾某, 王某群),
-and each one is short enough to check by hand against the page it came from.
+This is one of the two corpora the repository ships. Guiding cases are the easier
+of the two to ship: they are official documents the SPC publishes precisely so
+that courts refer to them, the publisher anonymises the parties itself (西某工业
+软件有限公司, 艾某, 王某群), and each one is short enough to check by hand against
+the page it came from. The other corpus, [gazette-cases](../gazette-cases/),
+shows what happens when a publisher does not anonymise — most of it cannot ship.
 
 ## Files
 

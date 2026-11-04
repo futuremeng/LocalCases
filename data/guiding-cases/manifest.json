@@ -2,7 +2,7 @@
   "dataset": "guiding-cases",
   "title": "最高人民法院指导性案例（指导案例1号 至 指导性案例279号）",
   "version": "1.1.0",
-  "generated_at": "2026-11-02T14:55:52Z",
+  "generated_at": "2026-11-04T12:59:15Z",
   "generator": "tools/crawl_guiding_cases.py",
   "source": {
     "publisher": "最高人民法院",
@@ -39,8 +39,8 @@
       "records": 279
     },
     "cases.csv": {
-      "sha256": "61850c2c6f0fb4b7bceec4747dd76f3971c1284ad1d5c36df6c921a68a71ac56",
-      "bytes": 2327019,
+      "sha256": "92c6722277e9203b74b0368e122e6c5b960b56ce12c24e7072f9a52eb73c415a",
+      "bytes": 2326739,
       "records": 279
     },
     "notices.jsonl": {
@@ -111,13 +111,43 @@
       "note": "title, 发布 note and every published section, plain text, markup removed, nothing reworded"
     }
   },
+  "checks": {
+    "identity_field": "case_no",
+    "number_field": "case_no",
+    "sort_key": [
+      "case_no"
+    ],
+    "source_url_pattern": "^https://(www\\.court\\.gov\\.cn/shenpan/xiangqing/\\d+\\.html|hnlyzy\\.hncourt\\.gov\\.cn/public/detail\\.php\\?id=\\d+)$",
+    "date_field": "publish_date",
+    "sections_field": "sections",
+    "required_sections": [
+      "关键词",
+      "基本案情",
+      "裁判结果",
+      "裁判理由",
+      "相关法条"
+    ],
+    "any_section_suffix": "要点",
+    "extra_files": {
+      "notices.jsonl": "notices"
+    },
+    "text_field": "full_text",
+    "csv_vs_jsonl": {
+      "原始链接": "source_url",
+      "案件名称": "title_full",
+      "公开日期": "publish_date",
+      "案件类型": "case_group",
+      "法律依据": "sections.相关法条"
+    }
+  },
   "notes": [
     "指导案例45号 is announced by 第10批 (指导案例45-52号) but the site's 指导案例 listing publishes no page for it, and no xiangqing page exists for it; its record is taken verbatim from the 洛阳中院 mirror named in the crawler's SUPPLEMENTS, so the dataset holds 279 of 1-279.",
     "24 cases publish no 裁判结果 section, so 案号 is empty for them.",
     "7 执行 cases publish 执行实施要点 where the others publish 裁判要点.",
     "法院, 所属地区, 审理程序, 当事人 and 案由 are left empty: a guiding-case page publishes none of them as a field. Nothing is inferred into a filterable column.",
     "batch attribution covers 79 of the 279 cases: 14 of the 15 notices in this listing name case-number ranges (the 第1批 notice names its cases by title only, and the 第2批 notice is not in this listing); batches after 第16批 were published here without a notice.",
-    "全文 is plain text, so a search over it needs index_with_full_text = true; at 780 kB of text that costs nothing."
+    "全文 is plain text, so a search over it needs index_with_full_text = true; at 780 kB of text that costs nothing.",
+    "cases.csv is written with LF line endings. It was previously CRLF, which .gitattributes eol=lf rewrites on checkout, so the hash recorded here described bytes no checkout could produce; the file was rewritten with LF and its hash re-recorded. The 279 records and every field are unchanged — only the 280 line terminators, verified by parsing the file before and after and comparing the rows."
   ],
   "case_json_fields": [
     "case_no",
@@ -143,6 +173,6 @@
   "redistribution": {
     "basis": "official judicial document of the Supreme People's Court, published for courts to refer to in similar cases; the publisher anonymises the parties itself, so a record names no private individual",
     "cite": "cite the 指导案例 number and the source_url stored with every record",
-    "checked_at": "2026-11-02T14:55:52Z"
+    "checked_at": "2026-11-04T12:59:15Z"
   }
 }

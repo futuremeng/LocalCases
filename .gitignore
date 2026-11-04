@@ -5,6 +5,9 @@ __pycache__/
 *.toml.bak
 # user data and built libraries never belong in git
 /sample_data/
+# case text that is public at its source but carries personal data never
+# published by that source (see data/README.md): fine to hold, not to ship
+/local_data/
 /fjall*/
 /index*/
 /fjall_sample/

@@ -187,6 +187,8 @@ def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--base", default="http://127.0.0.1:5001")
     ap.add_argument("--raw", default="sample_data")
+    ap.add_argument("--export-limit", type=int, default=10000,
+                    help="the export_limit of the library being verified")
     args = ap.parse_args()
 
     gt = scan(args.raw)
@@ -246,12 +248,18 @@ def main():
             total(args.base, date_from=year, date_to=year),
         )
 
-    court, year = top_courts[0], sorted(gt["years"])[-1]
-    check(
-        f"conjunction court+year ({court}, {year})",
-        gt["court_year"][(court, year)],
-        total(args.base, court=court, year_from=year, year_to=year),
-    )
+    if top_courts and gt["years"]:
+        court, year = top_courts[0], sorted(gt["years"])[-1]
+        check(
+            f"conjunction court+year ({court}, {year})",
+            gt["court_year"][(court, year)],
+            total(args.base, court=court, year_from=year, year_to=year),
+        )
+    else:
+        # A corpus whose documents carry no 裁判日期 (the bundled 公报 and 指导案例
+        # corpora publish a 发布日期 or an issue, not a judgment date) has no
+        # date facet to verify. Saying so beats inventing a year to filter on.
+        check("date facet not applicable to this corpus", True, True)
 
     # facets: sums and cross-checks against filters
     facets = api(args.base, "/api/facets", group_by="court", size="1000")["facets"]["court"]
@@ -287,7 +295,10 @@ def main():
 
     # sorting
     by_date = api(args.base, "/api/search", sort="date")["cases"][0]
-    check("sort=date first judgment_date", gt["max_date"], by_date["judgment_date"])
+    # With no 裁判日期 anywhere in the corpus, every document ties on the date and
+    # the first row of a date sort carries the empty string, not a missing value.
+    check("sort=date first judgment_date", gt["max_date"] or "",
+          by_date["judgment_date"])
     by_id = api(args.base, "/api/search", sort="id")["cases"]
     check("sort=id first id", 1, by_id[0]["id"])
     check("sort=id ascending", len(by_id), by_id[-1]["id"])
@@ -306,8 +317,18 @@ def main():
     page2 = api(
         args.base, "/api/search", sort="id", export="true", id_gt=page1[-1]["id"]
     )["cases"]
-    check("cursor page sizes", (10000, 10000), (len(page1), len(page2)))
-    check("cursor pages ordered", True, page1[-1]["id"] < page2[0]["id"])
+    # A page is export_limit rows, or the whole corpus when the corpus is
+    # smaller — which the bundled corpora are. Asserting 10000 here would only
+    # ever be true of the 1.54 GB sample this tool grew up on.
+    want = min(args.export_limit, gt["kept"])
+    check("cursor page size", want, len(page1))
+    check("cursor pages ordered", True, page1[-1]["id"] < page2[0]["id"] if page2 else True)
+    check(
+        "cursor past the end returns nothing",
+        0,
+        len(api(args.base, "/api/search", sort="id", export="true",
+                id_gt=gt["kept"] + 1000)["cases"]),
+    )
 
     # keyword + filter combination
     kw = "合同"
@@ -346,11 +367,12 @@ def main():
             failed += 1
         print(f"{'PASS' if ok else 'FAIL'}  {name.ljust(width)}  expected={expected!r} actual={actual!r}")
     print(f"\n{len(checks) - failed}/{len(checks)} checks passed")
+    span = "%d-%d" % (min(gt["years"]), max(gt["years"])) if gt["years"] else "none"
     print(
         f"ground truth: kept={gt['kept']} dup={gt['dup']} empty_text={gt['empty_text']} "
         f"html={gt['html_text']} groups={len([k for k in gt['proc_groups'] if k])} "
         f"courts={len(gt['courts'])} case_types={len(gt['case_types'])} laws={len(gt['laws'])} "
-        f"years={min(gt['years'])}-{max(gt['years'])}"
+        f"years={span}"
     )
     return 1 if failed else 0
 

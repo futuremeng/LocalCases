@@ -1,0 +1,260 @@
+{
+  "dataset": "gazette-cases",
+  "title": "最高人民法院公报·裁判文书选登（2003年第1期 至 2026年第12期）",
+  "version": "1.0.0",
+  "generated_at": "2026-11-04T13:24:32Z",
+  "generator": "tools/build_gazette_cases.py",
+  "scope": "public",
+  "source": {
+    "publisher": "最高人民法院公报",
+    "site": "http://gongbao.court.gov.cn",
+    "listing_url": "http://gongbao.court.gov.cn/ArticleList.html?serial_no=cpwsxd",
+    "compilation": "https://github.com/lttxzmj/chinese-law-corpus",
+    "compilation_license": "CC0 1.0",
+    "upstream_generated_at": "2026-09-08T04:10:42.345Z",
+    "upstream_generated_at_note": "when the upstream last synced from gongbao.court.gov.cn"
+  },
+  "counts": {
+    "cases": 445,
+    "issues": 255,
+    "issue_years": 24,
+    "by_issue_year": {
+      "2003": 4,
+      "2004": 24,
+      "2005": 28,
+      "2006": 28,
+      "2007": 24,
+      "2008": 23,
+      "2009": 17,
+      "2010": 18,
+      "2011": 16,
+      "2012": 24,
+      "2013": 17,
+      "2014": 21,
+      "2015": 15,
+      "2016": 32,
+      "2017": 21,
+      "2018": 24,
+      "2019": 16,
+      "2020": 15,
+      "2021": 14,
+      "2022": 16,
+      "2023": 14,
+      "2024": 15,
+      "2025": 14,
+      "2026": 5
+    },
+    "case_groups": {
+      "民事": 360,
+      "刑事": 12,
+      "行政": 51,
+      "国家赔偿": 9,
+      "(未识别)": 2,
+      "执行": 11
+    },
+    "doc_types": {
+      "判决书": 293,
+      "裁定书": 139,
+      "决定书": 9,
+      "调解书": 2,
+      "通知书": 2
+    },
+    "courts": {
+      "最高人民法院": 436,
+      "最高人民法院赔偿委员会": 9
+    },
+    "case_number_codes": {
+      "民四终字": 23,
+      "民三终字": 11,
+      "民二终字": 68,
+      "刑复字": 9,
+      "行终字": 4,
+      "民一终字": 45,
+      "法委赔字": 7,
+      "民二提字": 4,
+      "法引字": 1,
+      "刑提字": 1,
+      "经终字": 1,
+      "民三提字": 5,
+      "行提字": 10,
+      "民四提字": 2,
+      "确申字": 2,
+      "刑引字": 1,
+      "民四监字": 1,
+      "民申字": 26,
+      "民提字": 53,
+      "民三监字": 1,
+      "民再申字": 5,
+      "执复字": 4,
+      "执监字": 2,
+      "民抗字": 2,
+      "知行字": 7,
+      "行监字": 2,
+      "执申字": 3,
+      "最高法民再": 33,
+      "最高法民终": 40,
+      "最高法行再": 17,
+      "最高法民终字": 1,
+      "最高法委赔监": 1,
+      "最高法民申": 19,
+      "最高法行申": 5,
+      "最高法委赔提": 1,
+      "最高法知民终": 14,
+      "最高法行终": 1,
+      "最高法知民辖终": 2,
+      "最高法知民申": 1,
+      "最高法知行终": 5,
+      "最高法执监": 2,
+      "最高法商初": 3
+    },
+    "sections": {
+      "来源": 445,
+      "审理法院": 445,
+      "文书类型": 445,
+      "案号": 445,
+      "裁判摘要": 441
+    },
+    "with_summary": 441,
+    "summary_lines": 647,
+    "full_text_chars_total": 149081,
+    "body_chars_total": 4658050
+  },
+  "files": {
+    "cases.jsonl": {
+      "sha256": "6737c66ad3fc683c10260c6cf4c1d213243567e9e4b089959c6bef6bdc36371a",
+      "bytes": 1519538,
+      "records": 445
+    },
+    "cases.csv": {
+      "sha256": "9b368b3323595e7956214b35ea607131d3539ce4af584fa78c022de323bf0bdb",
+      "bytes": 552055,
+      "records": 445
+    }
+  },
+  "fields": {
+    "原始链接": {
+      "origin": "verbatim",
+      "note": "the gongbao.court.gov.cn 裁判文书选登 page the record was read from"
+    },
+    "案号": {
+      "origin": "verbatim",
+      "note": "the 案号 printed on the document; every one of the 445 carries it"
+    },
+    "案件名称": {
+      "origin": "verbatim",
+      "note": "the title the Gazette gives the case; 90 of the 445 name a party in it exactly as published, the rest name no party"
+    },
+    "法院": {
+      "origin": "verbatim",
+      "note": "the adjudicating court printed on the document: 最高人民法院, or 最高人民法院赔偿委员会 for the state-compensation decisions"
+    },
+    "所属地区": {
+      "origin": "empty",
+      "note": "every document here was decided by the Supreme People's Court itself, so a region column would hold one value for all 445"
+    },
+    "案件类型": {
+      "origin": "derived",
+      "note": "the 案字 of 案号 under 法〔2015〕295号 (民/商/经/知民 → 民事, 刑/刑引 → 刑事, 行/知行 → 行政, 执 → 执行, 委赔 → 国家赔偿); empty for a 案字 the table does not name"
+    },
+    "案件类型编码": {
+      "origin": "derived",
+      "note": "the code extract.rs documents for that 案件类型; 国家赔偿 has no code and stays empty"
+    },
+    "来源": {
+      "origin": "fixed",
+      "note": "最高人民法院公报"
+    },
+    "审理程序": {
+      "origin": "derived",
+      "note": "案件类型 plus the instance token of the same 案字 (终 → 二审, 初 → 一审, 再/提/抗 → 再审, 申/监 → 再审审查与审判监督, 复 → 复议, 核 → 死刑复核)"
+    },
+    "裁判日期": {
+      "origin": "empty",
+      "note": "the Gazette dates an issue, not a judgment; the year a case was filed is in 案号, which is what the engine reads for year facets"
+    },
+    "公开日期": {
+      "origin": "empty",
+      "note": "same reason; 公报年份 and 期号 are in the JSON record instead"
+    },
+    "当事人": {
+      "origin": "empty",
+      "note": "the party list lives in the judgment body, and the body is not published with this corpus; see the notes"
+    },
+    "案由": {
+      "origin": "empty",
+      "note": "the Gazette prints no 案由 label; cutting one out of a case name would invent a field a user filters on"
+    },
+    "法律依据": {
+      "origin": "empty",
+      "note": "a 裁判文书选登 document cites statutes inside its reasoning, not in a 相关法条 section; the 《…》 spans a 裁判摘要 quotes are recorded as laws_mentioned rather than cut into a column a user filters on, because they are not all statutes — a contract is quoted the same way"
+    },
+    "全文": {
+      "origin": "verbatim",
+      "note": "title plus each published field under its own label, and the 裁判摘要; plain text, markup removed, nothing reworded"
+    }
+  },
+  "checks": {
+    "identity_field": "gazette_id",
+    "sort_key": [
+      "issue_year",
+      "issue_no",
+      "gazette_id"
+    ],
+    "source_url_pattern": "^https?://gongbao\\.court\\.gov\\.cn/Details/[0-9a-f]+\\.html$",
+    "date_field": null,
+    "sections_field": "sections",
+    "required_sections": [
+      "裁判摘要"
+    ],
+    "text_field": "full_text",
+    "publish_gate": true,
+    "csv_vs_jsonl": {
+      "原始链接": "source_url",
+      "案件名称": "title",
+      "案号": "case_number",
+      "法院": "court",
+      "案件类型": "case_group",
+      "审理程序": "procedure"
+    },
+    "pii_census": false
+  },
+  "notes": [
+    "The 公报 prints the whole judgment, and the whole judgment carries the parties: the bodies here hold 14 身份证号, 24 手机号, 965 住所地, 1 住址, 985 法定代表人, 1232 委托代理人 across 422 of the 445 documents. This corpus therefore publishes the metadata and the 裁判摘要 only, and assert_publishable fails the build if any of those patterns appears in it.",
+    "当事人, 案由, 法律依据, 裁判日期 and 公开日期 are empty because the Gazette publishes none of them as a field. 法院 is not: every document names the court that decided it.",
+    "4 of the 445 documents have no 裁判摘要 (the earliest 2003 issues), and 149 carry more than one numbered holding.",
+    "2 records have a 案字 this table does not name, so 案件类型 is empty for them: ['确申字'].",
+    "90 of the 445 case titles name a party, exactly as the Gazette prints them; that is the citation, not a party list this corpus assembled.",
+    "全文 is plain text, so a search over it needs index_with_full_text = true; at 149 kB of text that costs nothing.",
+    "convert reports bad_jdate and bad_pdate for all 445 rows: the two date columns are empty by design, and the counter reads an absent date as a bad one. no_case_year is 0 for every row, which is the date facet that actually works here — it comes from 案号.",
+    "151 records quote a 《…》 in the 裁判摘要 (116 distinct spans); they are in the JSON as laws_mentioned and not in 法律依据, so the law facet stays honest rather than gaining contract titles. convert therefore reports law_ref 0."
+  ],
+  "case_json_fields": [
+    "gazette_id",
+    "issue_year",
+    "issue_no",
+    "title",
+    "case_number",
+    "case_number_code",
+    "case_number_year",
+    "court",
+    "doc_type",
+    "category",
+    "case_group",
+    "procedure",
+    "summary",
+    "sections",
+    "section_order",
+    "laws_mentioned",
+    "full_text",
+    "full_text_sha256",
+    "full_text_chars",
+    "body_chars",
+    "source_url",
+    "upstream_sha256"
+  ],
+  "redistribution": {
+    "basis": "judicial documents published in the 最高人民法院公报, which are outside copyright under 著作权法 第五条; the upstream compilation that structured them is CC0 1.0. The published corpus keeps only the Gazette's own metadata and 裁判摘要, so it names no address, no identity document number and no natural person the Gazette did not itself name in a title.",
+    "cite": "cite the 公报 year and issue and the source_url stored with every record",
+    "checked_at": "2026-11-04T13:24:32Z"
+  }
+}
