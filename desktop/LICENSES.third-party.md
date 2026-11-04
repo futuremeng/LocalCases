@@ -17,21 +17,22 @@ Regenerate: `python3 tools/licenses.py`.
 
 | SPDX expression | crates |
 | --- | --- |
-| MIT OR Apache-2.0 | 210 |
-| MIT | 138 |
-| (no license field) | 77 |
-| Apache-2.0 OR MIT | 29 |
+| MIT OR Apache-2.0 | 250 |
+| MIT | 149 |
+| Apache-2.0 OR MIT | 30 |
+| MIT/Apache-2.0 | 19 |
 | Unicode-3.0 | 18 |
-| MIT/Apache-2.0 | 15 |
+| Zlib OR Apache-2.0 OR MIT | 17 |
+| Unlicense OR MIT | 9 |
 | Apache-2.0 | 8 |
 | BSD-3-Clause | 7 |
-| Unlicense OR MIT | 6 |
 | Unlicense/MIT | 6 |
 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT | 5 |
 | MPL-2.0 | 5 |
-| Apache-2.0/MIT | 3 |
+| Apache-2.0/MIT | 4 |
 | Zlib | 3 |
 | BSD-2-Clause OR Apache-2.0 OR MIT | 2 |
+| BSD-3-Clause OR MIT OR Apache-2.0 | 2 |
 | MIT OR Apache-2.0 OR LGPL-2.1-or-later | 2 |
 | MIT OR Apache-2.0 OR Zlib | 2 |
 | MIT OR Zlib OR Apache-2.0 | 2 |
@@ -50,7 +51,6 @@ Regenerate: `python3 tools/licenses.py`.
 | CC0-1.0 OR MIT-0 OR Apache-2.0 | 1 |
 | ISC | 1 |
 | MIT AND BSD-3-Clause | 1 |
-| Zlib OR Apache-2.0 OR MIT | 1 |
 | zlib-acknowledgement OR MIT | 1 |
 
 ## All crates
@@ -64,7 +64,7 @@ Regenerate: `python3 tools/licenses.py`.
 | alloc-no-stdlib | 3.0.0 | BSD-3-Clause |
 | alloc-stdlib | 0.3.0 | BSD-3-Clause |
 | allocator-api2 | 0.2.21 | MIT OR Apache-2.0 |
-| android_system_properties | 0.1.6 | (no license field) |
+| android_system_properties | 0.1.6 | MIT OR Apache-2.0 |
 | anyhow | 1.0.104 | MIT OR Apache-2.0 |
 | arc-swap | 1.9.3 | MIT OR Apache-2.0 |
 | async-compression | 0.4.51 | MIT OR Apache-2.0 |
@@ -75,7 +75,7 @@ Regenerate: `python3 tools/licenses.py`.
 | autocfg | 1.5.1 | Apache-2.0 OR MIT |
 | axum | 0.8.9 | MIT |
 | axum-core | 0.5.6 | MIT |
-| base64 | 0.21.7 | (no license field) |
+| base64 | 0.21.7 | MIT OR Apache-2.0 |
 | base64 | 0.23.1 | MIT OR Apache-2.0 |
 | basic-toml | 0.1.10 | MIT OR Apache-2.0 |
 | bincode | 1.3.3 | MIT |
@@ -87,7 +87,7 @@ Regenerate: `python3 tools/licenses.py`.
 | bitflags | 2.13.2 | MIT OR Apache-2.0 |
 | bitpacking | 0.9.3 | MIT |
 | block-buffer | 0.10.4 | MIT OR Apache-2.0 |
-| block2 | 0.6.2 | (no license field) |
+| block2 | 0.6.2 | MIT |
 | bon | 3.10.3 | MIT OR Apache-2.0 |
 | bon-macros | 3.10.3 | MIT OR Apache-2.0 |
 | brotli | 9.1.0 | BSD-3-Clause AND MIT |
@@ -95,7 +95,7 @@ Regenerate: `python3 tools/licenses.py`.
 | bs58 | 0.5.1 | MIT/Apache-2.0 |
 | bumpalo | 3.20.3 | MIT OR Apache-2.0 |
 | bytecount | 0.6.9 | Apache-2.0/MIT |
-| bytemuck | 1.25.2 | (no license field) |
+| bytemuck | 1.25.2 | Zlib OR Apache-2.0 OR MIT |
 | byteorder | 1.5.0 | Unlicense OR MIT |
 | bytes | 1.12.1 | MIT |
 | byteview | 0.6.1 | MIT OR Apache-2.0 |
@@ -107,21 +107,21 @@ Regenerate: `python3 tools/licenses.py`.
 | cargo_toml | 1.0.1 | Apache-2.0 OR MIT |
 | cc | 1.10.0 | MIT OR Apache-2.0 |
 | census | 0.4.2 | MIT |
-| cesu8 | 1.1.0 | (no license field) |
+| cesu8 | 1.1.0 | Apache-2.0/MIT |
 | cfb | 0.14.0 | MIT |
 | cfg-expr | 0.15.8 | MIT OR Apache-2.0 |
 | cfg-if | 1.0.5 | MIT OR Apache-2.0 |
 | cfg_aliases | 0.2.2 | MIT |
 | chrono | 0.4.45 | MIT OR Apache-2.0 |
-| combine | 4.6.9 | (no license field) |
+| combine | 4.6.9 | MIT |
 | compare | 0.0.6 | MIT/Apache-2.0 |
 | compression-codecs | 0.4.46 | MIT OR Apache-2.0 |
 | compression-core | 0.4.34 | MIT OR Apache-2.0 |
 | cookie | 0.18.2 | MIT OR Apache-2.0 |
 | core-foundation | 0.10.1 | MIT OR Apache-2.0 |
 | core-foundation-sys | 0.8.7 | MIT OR Apache-2.0 |
-| core-graphics | 0.25.0 | (no license field) |
-| core-graphics-types | 0.2.0 | (no license field) |
+| core-graphics | 0.25.0 | MIT OR Apache-2.0 |
+| core-graphics-types | 0.2.0 | MIT OR Apache-2.0 |
 | cpufeatures | 0.2.17 | MIT OR Apache-2.0 |
 | crc32fast | 1.5.3 | MIT OR Apache-2.0 |
 | crossbeam-channel | 0.5.17 | MIT OR Apache-2.0 |
@@ -152,7 +152,7 @@ Regenerate: `python3 tools/licenses.py`.
 | digest | 0.10.7 | MIT OR Apache-2.0 |
 | dirs | 7.0.0 | MIT OR Apache-2.0 |
 | dirs-sys | 0.5.0 | MIT OR Apache-2.0 |
-| dispatch2 | 0.3.1 | (no license field) |
+| dispatch2 | 0.3.1 | Zlib OR Apache-2.0 OR MIT |
 | displaydoc | 0.2.7 | MIT OR Apache-2.0 |
 | dlopen2 | 0.8.2 | MIT |
 | dlopen2_derive | 0.4.3 | MIT |
@@ -166,7 +166,7 @@ Regenerate: `python3 tools/licenses.py`.
 | dyn-clone | 1.0.20 | MIT OR Apache-2.0 |
 | either | 1.19.0 | MIT OR Apache-2.0 |
 | embed-resource | 3.0.12 | MIT |
-| embed_plist | 1.2.2 | (no license field) |
+| embed_plist | 1.2.2 | MIT OR Apache-2.0 |
 | enum_dispatch | 0.3.13 | MIT OR Apache-2.0 |
 | equivalent | 1.0.3 | Apache-2.0 OR MIT |
 | erased-serde | 0.4.11 | MIT OR Apache-2.0 |
@@ -181,9 +181,9 @@ Regenerate: `python3 tools/licenses.py`.
 | flate2 | 1.1.10 | MIT OR Apache-2.0 |
 | fnv | 1.0.7 | Apache-2.0 / MIT |
 | foldhash | 0.2.0 | Zlib |
-| foreign-types | 0.5.0 | (no license field) |
-| foreign-types-macros | 0.2.4 | (no license field) |
-| foreign-types-shared | 0.3.1 | (no license field) |
+| foreign-types | 0.5.0 | MIT/Apache-2.0 |
+| foreign-types-macros | 0.2.4 | MIT/Apache-2.0 |
+| foreign-types-shared | 0.3.1 | MIT/Apache-2.0 |
 | form_urlencoded | 1.2.2 | MIT OR Apache-2.0 |
 | frostem | 1.20260821.8 | BSD-3-Clause |
 | fs4 | 0.13.1 | MIT OR Apache-2.0 |
@@ -235,7 +235,7 @@ Regenerate: `python3 tools/licenses.py`.
 | hyper | 1.12.0 | MIT |
 | hyper-util | 0.1.21 | MIT |
 | iana-time-zone | 0.1.65 | MIT OR Apache-2.0 |
-| iana-time-zone-haiku | 0.1.2 | (no license field) |
+| iana-time-zone-haiku | 0.1.2 | MIT OR Apache-2.0 |
 | ico | 0.6.0 | MIT |
 | icu_collections | 2.4.0 | Unicode-3.0 |
 | icu_locale_core | 2.4.0 | Unicode-3.0 |
@@ -265,12 +265,12 @@ Regenerate: `python3 tools/licenses.py`.
 | jiff | 0.2.38 | Unlicense OR MIT |
 | jiff-core | 0.1.1 | Unlicense OR MIT |
 | jiff-static | 0.2.38 | Unlicense OR MIT |
-| jiff-tzdb | 0.1.9 | (no license field) |
-| jiff-tzdb-platform | 0.1.3 | (no license field) |
-| jni | 0.21.1 | (no license field) |
-| jni-sys | 0.3.1 | (no license field) |
-| jni-sys | 0.4.1 | (no license field) |
-| jni-sys-macros | 0.4.1 | (no license field) |
+| jiff-tzdb | 0.1.9 | Unlicense OR MIT |
+| jiff-tzdb-platform | 0.1.3 | Unlicense OR MIT |
+| jni | 0.21.1 | MIT/Apache-2.0 |
+| jni-sys | 0.3.1 | MIT OR Apache-2.0 |
+| jni-sys | 0.4.1 | MIT OR Apache-2.0 |
+| jni-sys-macros | 0.4.1 | MIT OR Apache-2.0 |
 | jobserver | 0.1.35 | MIT OR Apache-2.0 |
 | js-sys | 0.3.106 | MIT OR Apache-2.0 |
 | json-patch | 4.2.0 | MIT/Apache-2.0 |
@@ -307,9 +307,9 @@ Regenerate: `python3 tools/licenses.py`.
 | mio | 1.2.4 | MIT |
 | muda | 0.20.0 | Apache-2.0 OR MIT |
 | murmurhash32 | 0.4.0 | MIT |
-| ndk | 0.9.0 | (no license field) |
-| ndk-context | 0.1.1 | (no license field) |
-| ndk-sys | 0.6.0+11769913 | (no license field) |
+| ndk | 0.9.0 | MIT OR Apache-2.0 |
+| ndk-context | 0.1.1 | MIT OR Apache-2.0 |
+| ndk-sys | 0.6.0+11769913 | MIT OR Apache-2.0 |
 | new_debug_unreachable | 1.0.6 | MIT |
 | nix | 0.31.3 | MIT |
 | no_std_io2 | 0.9.4 | Apache-2.0 OR MIT |
@@ -317,25 +317,25 @@ Regenerate: `python3 tools/licenses.py`.
 | nu-ansi-term | 0.50.3 | MIT |
 | num-conv | 0.2.2 | MIT OR Apache-2.0 |
 | num-traits | 0.2.19 | MIT OR Apache-2.0 |
-| num_enum | 0.7.6 | (no license field) |
-| num_enum_derive | 0.7.6 | (no license field) |
-| objc2 | 0.6.5 | (no license field) |
-| objc2-app-kit | 0.3.2 | (no license field) |
-| objc2-cloud-kit | 0.3.2 | (no license field) |
-| objc2-core-data | 0.3.2 | (no license field) |
-| objc2-core-foundation | 0.3.2 | (no license field) |
-| objc2-core-graphics | 0.3.2 | (no license field) |
-| objc2-core-image | 0.3.2 | (no license field) |
-| objc2-core-location | 0.3.2 | (no license field) |
-| objc2-core-text | 0.3.2 | (no license field) |
-| objc2-encode | 4.1.0 | (no license field) |
-| objc2-exception-helper | 0.1.1 | (no license field) |
-| objc2-foundation | 0.3.2 | (no license field) |
-| objc2-io-surface | 0.3.2 | (no license field) |
-| objc2-quartz-core | 0.3.2 | (no license field) |
-| objc2-ui-kit | 0.3.2 | (no license field) |
-| objc2-user-notifications | 0.3.2 | (no license field) |
-| objc2-web-kit | 0.3.2 | (no license field) |
+| num_enum | 0.7.6 | BSD-3-Clause OR MIT OR Apache-2.0 |
+| num_enum_derive | 0.7.6 | BSD-3-Clause OR MIT OR Apache-2.0 |
+| objc2 | 0.6.5 | MIT |
+| objc2-app-kit | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
+| objc2-cloud-kit | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
+| objc2-core-data | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
+| objc2-core-foundation | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
+| objc2-core-graphics | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
+| objc2-core-image | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
+| objc2-core-location | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
+| objc2-core-text | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
+| objc2-encode | 4.1.0 | MIT |
+| objc2-exception-helper | 0.1.1 | Zlib OR Apache-2.0 OR MIT |
+| objc2-foundation | 0.3.2 | MIT |
+| objc2-io-surface | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
+| objc2-quartz-core | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
+| objc2-ui-kit | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
+| objc2-user-notifications | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
+| objc2-web-kit | 0.3.2 | Zlib OR Apache-2.0 OR MIT |
 | once_cell | 1.21.4 | MIT OR Apache-2.0 |
 | oneshot | 0.1.13 | MIT OR Apache-2.0 |
 | option-ext | 0.2.0 | MPL-2.0 |
@@ -366,7 +366,7 @@ Regenerate: `python3 tools/licenses.py`.
 | prettyplease | 0.3.0 | MIT OR Apache-2.0 |
 | proc-macro-crate | 1.3.1 | MIT OR Apache-2.0 |
 | proc-macro-crate | 2.0.2 | MIT OR Apache-2.0 |
-| proc-macro-crate | 3.5.0 | (no license field) |
+| proc-macro-crate | 3.5.0 | MIT OR Apache-2.0 |
 | proc-macro-error | 1.0.4 | MIT OR Apache-2.0 |
 | proc-macro-error-attr | 1.0.4 | MIT OR Apache-2.0 |
 | proc-macro-error-attr3 | 3.1.1 | MIT OR Apache-2.0 |
@@ -390,7 +390,7 @@ Regenerate: `python3 tools/licenses.py`.
 | regex | 1.13.1 | MIT OR Apache-2.0 |
 | regex-automata | 0.4.18 | MIT OR Apache-2.0 |
 | regex-syntax | 0.8.11 | MIT OR Apache-2.0 |
-| reqwest | 0.13.5 | (no license field) |
+| reqwest | 0.13.5 | MIT OR Apache-2.0 |
 | rle-decode-fast | 1.0.3 | MIT OR Apache-2.0 |
 | rustc-hash | 2.1.3 | Apache-2.0 OR MIT |
 | rustc_version | 0.4.1 | MIT OR Apache-2.0 |
@@ -426,13 +426,14 @@ Regenerate: `python3 tools/licenses.py`.
 | sha2 | 0.10.9 | MIT OR Apache-2.0 |
 | sharded-slab | 0.1.7 | MIT |
 | shlex | 2.0.1 | MIT OR Apache-2.0 |
+| signal-hook-registry | 1.4.8 | MIT OR Apache-2.0 |
 | simd-adler32 | 0.3.10 | MIT |
 | siphasher | 1.0.4 | MIT OR Apache-2.0 |
 | sketches-ddsketch | 0.4.2 | Apache-2.0 |
 | slab | 0.4.12 | MIT |
 | smallvec | 1.16.4 | MIT OR Apache-2.0 |
 | socket2 | 0.6.5 | MIT OR Apache-2.0 |
-| softbuffer | 0.4.8 | (no license field) |
+| softbuffer | 0.4.8 | MIT OR Apache-2.0 |
 | soup3 | 0.5.0 | MIT |
 | soup3-sys | 0.5.0 | MIT |
 | stable_deref_trait | 1.2.1 | MIT OR Apache-2.0 |
@@ -442,7 +443,7 @@ Regenerate: `python3 tools/licenses.py`.
 | string_cache | 0.9.0 | MIT OR Apache-2.0 |
 | string_cache_codegen | 0.6.1 | MIT OR Apache-2.0 |
 | strsim | 0.11.1 | MIT |
-| swift-rs | 1.0.9 | (no license field) |
+| swift-rs | 1.0.9 | MIT OR Apache-2.0 |
 | syn | 1.0.109 | MIT OR Apache-2.0 |
 | syn | 2.0.119 | MIT OR Apache-2.0 |
 | syn | 3.0.9 | MIT OR Apache-2.0 |
@@ -460,7 +461,7 @@ Regenerate: `python3 tools/licenses.py`.
 | tantivy-stacker | 0.27.0 | MIT |
 | tantivy-tokenizer-api | 0.7.0 | MIT |
 | tao | 0.37.2 | Apache-2.0 |
-| tao-macros | 0.1.4 | (no license field) |
+| tao-macros | 0.1.4 | MIT OR Apache-2.0 |
 | target-lexicon | 0.12.16 | Apache-2.0 WITH LLVM-exception |
 | tauri | 2.12.5 | Apache-2.0 OR MIT |
 | tauri-build | 2.7.4 | Apache-2.0 OR MIT |
@@ -493,7 +494,7 @@ Regenerate: `python3 tools/licenses.py`.
 | toml_datetime | 1.1.2+spec-1.1.0 | MIT OR Apache-2.0 |
 | toml_edit | 0.19.15 | MIT OR Apache-2.0 |
 | toml_edit | 0.20.2 | MIT OR Apache-2.0 |
-| toml_edit | 0.25.17+spec-1.1.0 | (no license field) |
+| toml_edit | 0.25.17+spec-1.1.0 | MIT OR Apache-2.0 |
 | toml_parser | 1.1.5+spec-1.1.0 | MIT OR Apache-2.0 |
 | toml_writer | 1.1.3+spec-1.1.0 | MIT OR Apache-2.0 |
 | tower | 0.5.3 | MIT |
@@ -528,8 +529,8 @@ Regenerate: `python3 tools/licenses.py`.
 | version-compare | 0.2.1 | MIT |
 | version_check | 0.9.5 | MIT/Apache-2.0 |
 | virtue | 0.0.18 | MIT |
-| vswhom | 0.1.0 | (no license field) |
-| vswhom-sys | 0.1.3 | (no license field) |
+| vswhom | 0.1.0 | MIT |
+| vswhom-sys | 0.1.3 | MIT |
 | walkdir | 2.5.0 | Unlicense/MIT |
 | want | 0.3.2 | MIT |
 | wasi | 0.11.1+wasi-snapshot-preview1 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
@@ -539,55 +540,55 @@ Regenerate: `python3 tools/licenses.py`.
 | wasm-bindgen-macro | 0.2.129 | MIT OR Apache-2.0 |
 | wasm-bindgen-macro-support | 0.2.129 | MIT OR Apache-2.0 |
 | wasm-bindgen-shared | 0.2.129 | MIT OR Apache-2.0 |
-| wasm-streams | 0.5.0 | (no license field) |
+| wasm-streams | 0.5.0 | MIT OR Apache-2.0 |
 | web-sys | 0.3.106 | MIT OR Apache-2.0 |
 | web-time | 1.1.0 | MIT OR Apache-2.0 |
 | web_atoms | 0.2.6 | MIT OR Apache-2.0 |
 | webkit2gtk | 2.0.2 | MIT |
 | webkit2gtk-sys | 2.0.2 | MIT |
-| webview2-com | 0.39.1 | (no license field) |
-| webview2-com-macros | 0.8.1 | (no license field) |
-| webview2-com-sys | 0.39.1 | (no license field) |
+| webview2-com | 0.39.1 | MIT |
+| webview2-com-macros | 0.8.1 | MIT |
+| webview2-com-sys | 0.39.1 | MIT |
 | winapi | 0.3.9 | MIT/Apache-2.0 |
 | winapi-i686-pc-windows-gnu | 0.4.0 | MIT/Apache-2.0 |
-| winapi-util | 0.1.11 | (no license field) |
+| winapi-util | 0.1.11 | Unlicense OR MIT |
 | winapi-x86_64-pc-windows-gnu | 0.4.0 | MIT/Apache-2.0 |
-| window-vibrancy | 0.8.1 | (no license field) |
-| windows | 0.62.2 | (no license field) |
-| windows-collections | 0.3.2 | (no license field) |
-| windows-core | 0.62.2 | (no license field) |
-| windows-future | 0.3.2 | (no license field) |
-| windows-implement | 0.60.2 | (no license field) |
-| windows-interface | 0.59.3 | (no license field) |
+| window-vibrancy | 0.8.1 | Apache-2.0 OR MIT |
+| windows | 0.62.2 | MIT OR Apache-2.0 |
+| windows-collections | 0.3.2 | MIT OR Apache-2.0 |
+| windows-core | 0.62.2 | MIT OR Apache-2.0 |
+| windows-future | 0.3.2 | MIT OR Apache-2.0 |
+| windows-implement | 0.60.2 | MIT OR Apache-2.0 |
+| windows-interface | 0.59.3 | MIT OR Apache-2.0 |
 | windows-link | 0.2.1 | MIT OR Apache-2.0 |
-| windows-numerics | 0.3.1 | (no license field) |
-| windows-result | 0.4.1 | (no license field) |
-| windows-strings | 0.5.1 | (no license field) |
-| windows-sys | 0.45.0 | (no license field) |
+| windows-numerics | 0.3.1 | MIT OR Apache-2.0 |
+| windows-result | 0.4.1 | MIT OR Apache-2.0 |
+| windows-strings | 0.5.1 | MIT OR Apache-2.0 |
+| windows-sys | 0.45.0 | MIT OR Apache-2.0 |
 | windows-sys | 0.59.0 | MIT OR Apache-2.0 |
 | windows-sys | 0.61.2 | MIT OR Apache-2.0 |
-| windows-targets | 0.42.2 | (no license field) |
+| windows-targets | 0.42.2 | MIT OR Apache-2.0 |
 | windows-targets | 0.52.6 | MIT OR Apache-2.0 |
-| windows-threading | 0.2.1 | (no license field) |
-| windows-version | 0.1.7 | (no license field) |
-| windows_aarch64_gnullvm | 0.42.2 | (no license field) |
+| windows-threading | 0.2.1 | MIT OR Apache-2.0 |
+| windows-version | 0.1.7 | MIT OR Apache-2.0 |
+| windows_aarch64_gnullvm | 0.42.2 | MIT OR Apache-2.0 |
 | windows_aarch64_gnullvm | 0.52.6 | MIT OR Apache-2.0 |
-| windows_aarch64_msvc | 0.42.2 | (no license field) |
+| windows_aarch64_msvc | 0.42.2 | MIT OR Apache-2.0 |
 | windows_aarch64_msvc | 0.52.6 | MIT OR Apache-2.0 |
-| windows_i686_gnu | 0.42.2 | (no license field) |
+| windows_i686_gnu | 0.42.2 | MIT OR Apache-2.0 |
 | windows_i686_gnu | 0.52.6 | MIT OR Apache-2.0 |
 | windows_i686_gnullvm | 0.52.6 | MIT OR Apache-2.0 |
-| windows_i686_msvc | 0.42.2 | (no license field) |
+| windows_i686_msvc | 0.42.2 | MIT OR Apache-2.0 |
 | windows_i686_msvc | 0.52.6 | MIT OR Apache-2.0 |
-| windows_x86_64_gnu | 0.42.2 | (no license field) |
+| windows_x86_64_gnu | 0.42.2 | MIT OR Apache-2.0 |
 | windows_x86_64_gnu | 0.52.6 | MIT OR Apache-2.0 |
-| windows_x86_64_gnullvm | 0.42.2 | (no license field) |
+| windows_x86_64_gnullvm | 0.42.2 | MIT OR Apache-2.0 |
 | windows_x86_64_gnullvm | 0.52.6 | MIT OR Apache-2.0 |
-| windows_x86_64_msvc | 0.42.2 | (no license field) |
+| windows_x86_64_msvc | 0.42.2 | MIT OR Apache-2.0 |
 | windows_x86_64_msvc | 0.52.6 | MIT OR Apache-2.0 |
 | winnow | 0.5.40 | MIT |
 | winnow | 1.0.4 | MIT |
-| winreg | 0.56.0 | (no license field) |
+| winreg | 0.56.0 | MIT |
 | wit-bindgen | 0.57.1 | Apache-2.0 WITH LLVM-exception OR Apache-2.0 OR MIT |
 | writeable | 0.6.4 | Unicode-3.0 |
 | wry | 0.57.1 | Apache-2.0 OR MIT |

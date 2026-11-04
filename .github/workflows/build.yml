@@ -43,6 +43,18 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
+      # Windows runners check text out with core.autocrlf=true, which rewrites the
+      # dataset's LF into CRLF -- and data/*/manifest.json addresses every file by
+      # sha256 and byte count, so the checker would be reading a different dataset
+      # than the manifest describes. The fix belongs in a .gitattributes at the
+      # source; until that is possible, the runner is told not to convert, and the
+      # tree is written out again under that setting.
+      - name: line endings
+        if: runner.os == 'Windows'
+        run: |
+          git config core.autocrlf false
+          git checkout --force HEAD
+
       # rust-version is 1.92 and every runner's stable is newer, so the version is
       # printed rather than pinned: a runner that fell behind the manifest fails in
       # the build step, not somewhere quieter.
@@ -69,6 +81,15 @@ jobs:
 
       - name: binaries
         run: cargo build --release --locked
+
+      # The manifest that ships inside a bundle has to match the lockfile it was
+      # built from. `cargo fetch` comes first: a host build only downloads the
+      # crates of its own target, and the license of a Windows- or macOS-only crate
+      # lives in its packaged manifest, which is the only place this reads it from.
+      - name: third-party licenses match the lockfile
+        run: |
+          cargo fetch --locked
+          python3 tools/licenses.py --check
 
       # The whole pipeline on the corpus the repository ships: seconds rather than
       # minutes, and it ends with the dataset checked against its own manifest.
@@ -161,8 +182,10 @@ jobs:
             desktop/target
           key: ${{ runner.os }}-desktop-${{ hashFiles('desktop/Cargo.lock') }}
 
+      # Ubuntu runners ship a cargo-tauri in the image, and cargo install refuses to
+      # overwrite a binary it did not put there.
       - name: tauri-cli
-        run: cargo install tauri-cli --locked --version "^2"
+        run: cargo install tauri-cli --locked --version "^2" --force
 
       # The version assertion lives in desktop/build.rs: it compares
       # tauri.conf.json, desktop/Cargo.toml and the engine's Cargo.toml and stops
@@ -170,6 +193,15 @@ jobs:
       - name: check the shell
         working-directory: desktop
         run: cargo check --locked
+
+      # The desktop tree is a separate workspace with its own dependency graph, so
+      # it carries its own manifest into the bundle -- and its own check that the
+      # manifest matches the lockfile it was resolved from.
+      - name: the licenses the bundle will carry
+        working-directory: desktop
+        run: |
+          cargo fetch --locked
+          python3 ../tools/licenses.py --check
 
       # `tauri bundle` only wraps binaries that already exist; `tauri build` is the
       # one that compiles them first.

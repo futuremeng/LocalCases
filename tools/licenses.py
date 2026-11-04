@@ -7,6 +7,13 @@ result describes exactly what is linked into the shipped binaries — which is w
 Apache-2.0 §4 (license text + NOTICE + state changes) and the MIT/BSD/ISC
 "keep the copyright notice" clauses actually ask for.
 
+A crate belonging to a target this machine does not build is never downloaded by a
+build, and cargo's sparse index no longer carries a license field, so the packaged
+manifest is the only place its license can be read from. Fetch every target first,
+or the file will claim a license is unknown for crates that ship in the bundle:
+
+    cargo fetch --locked && python3 tools/licenses.py --check
+
 Usage: tools/licenses.py [--out LICENSES.third-party.md] [--check]
   --check  exit non-zero instead of writing, after comparing with the file
 """
@@ -88,7 +95,9 @@ def license_from_index(name, version):
         except ValueError:
             continue
         if entry.get("vers") == version:
-            return entry.get("license") or "(no license field)"
+            # Absent here means cargo did not store it, not that the crate has no
+            # license: say nothing and let the caller mark it unresolved.
+            return entry.get("license")
     return None
 
 
@@ -123,7 +132,7 @@ def main():
         lic = license_of(name, version)
         if lic is None:
             missing.append((name, version))
-            lic = "(not in local cargo cache — re-check with network)"
+            lic = "(not in local cargo cache — run `cargo fetch --locked`)"
         rows.append((name, version, lic))
 
     hist = collections.Counter(r[2] for r in rows)

@@ -17,7 +17,7 @@ Regenerate: `python3 tools/licenses.py`.
 
 | SPDX expression | crates |
 | --- | --- |
-| MIT OR Apache-2.0 | 133 |
+| MIT OR Apache-2.0 | 134 |
 | MIT | 72 |
 | MIT/Apache-2.0 | 13 |
 | Apache-2.0 OR MIT | 11 |
@@ -230,6 +230,7 @@ Regenerate: `python3 tools/licenses.py`.
 | serde_urlencoded | 0.7.1 | MIT/Apache-2.0 |
 | sharded-slab | 0.1.7 | MIT |
 | shlex | 2.0.1 | MIT OR Apache-2.0 |
+| signal-hook-registry | 1.4.8 | MIT OR Apache-2.0 |
 | simd-adler32 | 0.3.10 | MIT |
 | sketches-ddsketch | 0.4.1 | Apache-2.0 |
 | slab | 0.4.12 | MIT |

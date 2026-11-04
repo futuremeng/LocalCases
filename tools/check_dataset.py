@@ -76,7 +76,16 @@ def main():
         if not check(path.exists(), "%s exists" % name):
             continue
         raw = path.read_bytes()
-        check(hashlib.sha256(raw).hexdigest() == info["sha256"], "%s sha256 matches" % name)
+        if not check(hashlib.sha256(raw).hexdigest() == info["sha256"],
+                     "%s sha256 matches" % name):
+            # The one way this fails on a machine that did nothing wrong: a Windows
+            # checkout with core.autocrlf turns the committed LF into CRLF, which
+            # changes both the byte count and the hash. Say which of the two it was.
+            lf = raw.replace(b"\r\n", b"\n")
+            if hashlib.sha256(lf).hexdigest() == info["sha256"]:
+                print("       note: this is the committed file with CRLF endings -- the checkout\n"
+                      "       converted them (core.autocrlf=true). Set it false and check the\n"
+                      "       files out again; what git holds is LF.")
         check(len(raw) == info["bytes"], "%s is %d bytes" % (name, info["bytes"]))
 
     cases = [json.loads(line) for line in
