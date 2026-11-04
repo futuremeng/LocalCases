@@ -134,11 +134,23 @@ jobs:
           assert health["version"] == version, (health, version)
           assert health["indexed_documents"] == 279, health
           PY
-          total=$(curl -fsS --get http://127.0.0.1:5010/api/search \
-            --data-urlencode 'search=证据保全' --data-urlencode size=1 \
-            | python3 -c 'import json,sys; print(json.load(sys.stdin)["search_meta"]["total"])')
-          echo "证据保全 -> $total hits"
-          test "$total" = 5
+          # The query is Chinese, so it goes out from Python and not curl: on a
+          # Windows runner curl is the system build, which takes its arguments in the
+          # ANSI code page, so a UTF-8 term reaches the service as mojibake -- 0 hits
+          # against an index that /api/health says holds 279 documents.
+          python3 - <<'PY'
+          import json
+          import urllib.parse
+          import urllib.request
+
+          query = "证据保全"
+          url = "http://127.0.0.1:5010/api/search?" + urllib.parse.urlencode(
+              {"search": query, "size": 1}
+          )
+          found = json.load(urllib.request.urlopen(url))
+          print(query, "->", found["search_meta"]["total"], "hits")
+          assert found["search_meta"]["total"] == 5, found
+          PY
           kill "$serve_pid"
 
   desktop:
