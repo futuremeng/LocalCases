@@ -1,0 +1,185 @@
+# The checks this repository already makes by hand, on every push: the unit tests,
+# the bundled dataset through the real pipeline, the service answering the query the
+# README promises, and a bundle per platform. Nothing here is a new kind of check —
+# SPEC §7 is what runs.
+#
+# The contract assertions read the numbers out of the source (`src/lib.rs`,
+# `Cargo.toml`) rather than repeating them here, the same way
+# `tools/check_dataset.py` reads the stored columns out of `convert.rs`. A bumped
+# `SCHEMA` or version therefore needs no edit in this file; a contract that stopped
+# matching the source does.
+
+name: build
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  engine:
+    name: engine (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-latest
+            exe: ''
+          - os: macos-latest
+            exe: ''
+          - os: windows-latest
+            exe: '.exe'
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+
+      # rust-version is 1.92 and every runner's stable is newer, so the version is
+      # printed rather than pinned: a runner that fell behind the manifest fails in
+      # the build step, not somewhere quieter.
+      - name: toolchain
+        run: rustc --version && cargo --version
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            target
+          key: ${{ runner.os }}-engine-${{ hashFiles('Cargo.lock') }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: format
+        run: cargo fmt --check
+
+      - name: unit tests
+        run: cargo test --release --locked
+
+      - name: binaries
+        run: cargo build --release --locked
+
+      # The whole pipeline on the corpus the repository ships: seconds rather than
+      # minutes, and it ends with the dataset checked against its own manifest.
+      - name: import, index and self-check the bundled dataset
+        run: |
+          mkdir -p work
+          cat > work/ci.toml <<TOML
+          db = "$PWD/work/library"
+          index_path = "$PWD/work/index"
+          addr = "127.0.0.1:5010"
+          index_with_full_text = true
+          raw_data_path = "$PWD/data/guiding-cases"
+          TOML
+          ./target/release/convert${{ matrix.exe }} work/ci.toml --compact
+          ./target/release/index${{ matrix.exe }} work/ci.toml
+          ./target/release/check${{ matrix.exe }} work/ci.toml
+          python3 tools/check_dataset.py
+
+      - name: the service answers what the README says it answers
+        run: |
+          ./target/release/serve${{ matrix.exe }} work/ci.toml > serve.log 2>&1 &
+          serve_pid=$!
+          for _ in $(seq 1 40); do
+            if curl -fsS http://127.0.0.1:5010/api/health > health.json; then break; fi
+            sleep 0.5
+          done
+          # a service that never answered is its own failure, with its own log
+          if [ ! -s health.json ]; then cat serve.log; exit 1; fi
+          python3 - <<'PY'
+          import json
+          import re
+          import tomllib
+
+          health = json.load(open("health.json"))
+          print(health)
+          schema = int(re.search(r"SCHEMA: u32 = (\d+)", open("src/lib.rs").read()).group(1))
+          version = tomllib.load(open("Cargo.toml", "rb"))["package"]["version"]
+          assert health["ok"], health
+          assert health["schema"] == schema, (health, schema)
+          assert health["version"] == version, (health, version)
+          assert health["indexed_documents"] == 279, health
+          PY
+          total=$(curl -fsS --get http://127.0.0.1:5010/api/search \
+            --data-urlencode 'search=证据保全' --data-urlencode size=1 \
+            | python3 -c 'import json,sys; print(json.load(sys.stdin)["search_meta"]["total"])')
+          echo "证据保全 -> $total hits"
+          test "$total" = 5
+          kill "$serve_pid"
+
+  desktop:
+    name: desktop (${{ matrix.os }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          # One bundle format per platform, the one that needs no network to build:
+          # the shell writes the .deb itself, while the .AppImage would download
+          # linuxdeploy. macOS and Windows take the bundle the README names there.
+          - os: ubuntu-latest
+            bundles: deb
+          - os: macos-latest
+            bundles: app
+          - os: windows-latest
+            bundles: msi
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - uses: actions/checkout@v5
+
+      # Tauri's system dependencies, the list the README gives for Debian/Ubuntu.
+      # Without them the build stops inside a C build script, not in this code.
+      - name: system dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends \
+            pkg-config libdbus-1-dev libwebkit2gtk-4.1-dev curl wget file \
+            libxdo-dev libssl-dev libayatana-appindicator3-dev librsvg2-dev
+
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cargo/registry
+            ~/.cargo/git
+            ~/.cargo/bin
+            desktop/target
+          key: ${{ runner.os }}-desktop-${{ hashFiles('desktop/Cargo.lock') }}
+
+      # The version assertion lives in desktop/build.rs: it compares
+      # tauri.conf.json, desktop/Cargo.toml and the engine's Cargo.toml and stops
+      # the build when they differ. This step is where it runs.
+      - name: check the shell
+        working-directory: desktop
+        run: cargo check --locked
+
+      - name: tauri-cli
+        run: cargo install tauri-cli --locked --version "^2"
+
+      - name: bundle
+        working-directory: desktop
+        run: cargo tauri bundle --bundles ${{ matrix.bundles }}
+
+      - name: artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: LocalCases-${{ matrix.os }}
+          path: |
+            desktop/target/release/bundle/deb/*.deb
+            desktop/target/release/bundle/macos/*.app
+            desktop/target/release/bundle/msi/*.msi
+          if-no-files-found: error
+
