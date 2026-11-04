@@ -1,7 +1,15 @@
 # The dataset is content-addressed: manifest.json records a sha256 and a byte count
 # for every file, so a checkout that rewrites line endings changes the corpus without
-# changing a line of engine code, and the hash check fails on Windows alone. LF in the
-# working tree is therefore not a style preference; it is what the hashes describe.
+# changing a line of engine code. LF in the working tree is therefore not a style
+# preference; it is what the hashes describe.
+#
+# Two opposite mistakes break that, and the hash check cannot tell them apart on its
+# own: a checkout with core.autocrlf=true turning the committed LF into CRLF (Windows
+# alone), and a generator writing CRLF in the first place, which records a hash of
+# bytes git never stores here (any platform -- both generators once did this, and only
+# a clean checkout caught it). tools/check_dataset.py now distinguishes the two and
+# asserts that every corpus file is LF-only, so the second mistake fails at build
+# time instead of on someone else's machine.
 * text=auto eol=lf
 
 # Not text: git must not guess, and a wrong guess corrupts them.

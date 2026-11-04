@@ -32,6 +32,13 @@ against it) and a README. `python3 tools/check_dataset.py --dir data/<name>`
 re-verifies a dataset against its own manifest; the tool that built it lives in
 `tools/`, so a dataset can be rebuilt rather than trusted.
 
+One invariant makes a recorded hash mean anything: the corpus files are LF, and
+the generators write LF. `.gitattributes` pins the tree to `eol=lf`, so git
+stores what a checkout yields — if a generator writes CRLF, the manifest hashes
+bytes that no checkout can produce, and the corpus fails its own hash check on
+every machine except the one that built it. Both generators did exactly that
+before a clean checkout caught it.
+
 `local_data/` follows the same layout and the same manifest, so the same checker
 runs on it — with the opposite verdict where the two corpora differ on purpose:
 
