@@ -1,19 +1,30 @@
 //! Desktop shell. It is deliberately thin: the engine is linked in and served on
 //! loopback with a per-run token, and the webview only ever talks to that API.
 //! Nothing here reads files or builds queries — one implementation, one place to
-//! audit.
+//! audit. The one exception is [save_csv], which shows the native save panel:
+//! a WKWebView cannot download a blob, so the bytes have to leave through here.
 //!
 //! `LOCALCASES_REMOTE_API` turns the same window into a client for a library on
 //! another machine: no engine is opened here, the loopback service forwards
 //! instead. A laptop with no room for the corpus then runs the identical UI, and
 //! the content security policy does not have to change, because the webview still
 //! only ever sees a loopback address.
+//!
+//! The window follows the Mac conventions: a real menu bar with the app's
+//! commands and shortcuts, one instance per machine, a window that comes back
+//! when the Dock icon is clicked after the last one was closed, and a remembered
+//! size and position.
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 use std::net::{SocketAddr, TcpListener};
 
 use serde::Serialize;
+use tauri::menu::{
+    AboutMetadata, HELP_SUBMENU_ID, Menu, MenuItem, PredefinedMenuItem, Submenu, SubmenuBuilder,
+    WINDOW_SUBMENU_ID,
+};
+use tauri::{Emitter, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder};
 
 /// Where the search service lives, handed to the webview on request.
 #[derive(Clone, Serialize)]
@@ -25,6 +36,36 @@ struct ApiInfo {
 #[tauri::command]
 fn api_info(info: tauri::State<'_, ApiInfo>) -> ApiInfo {
     info.inner().clone()
+}
+
+/// Write CSV bytes out through the native save panel. The front-end fetches the
+/// export from the loopback API and hands the bytes here; a blob download from
+/// inside a WKWebView would silently go nowhere.
+#[tauri::command]
+async fn save_csv(
+    app: tauri::AppHandle,
+    name: String,
+    data: Vec<u8>,
+) -> Result<Option<String>, String> {
+    use tauri_plugin_dialog::DialogExt;
+    let (tx, rx) = tokio::sync::oneshot::channel();
+    app.dialog()
+        .file()
+        .set_file_name(&name)
+        .save_file(move |path| {
+            let _ = tx.send(path);
+        });
+    let path = rx.await.map_err(|_| "the save dialog closed".to_string())?;
+    match path {
+        Some(path) => {
+            let path = path
+                .into_path()
+                .map_err(|e| format!("the chosen path is not usable: {e}"))?;
+            std::fs::write(&path, &data).map_err(|e| format!("cannot write the file: {e}"))?;
+            Ok(Some(path.display().to_string()))
+        }
+        None => Ok(None),
+    }
 }
 
 /// An environment variable that is set, trimmed, and not empty.
@@ -44,6 +85,124 @@ fn free_addr() -> Option<SocketAddr> {
     })
 }
 
+/// What fills the window: open the library here, or ask someone else's process
+/// that did. The front-end cannot tell them apart.
+enum Mode {
+    Local(localcases::AppState),
+    Remote(localcases::proxy::Upstream),
+}
+
+/// The menu bar is where a Mac user looks for a feature they cannot find. Every
+/// item here maps to a front-end action through the `menu` event; the front-end
+/// also answers the same shortcuts when the UI runs in a plain browser.
+fn build_menu(app: &tauri::AppHandle) -> tauri::Result<Menu<tauri::Wry>> {
+    let about = PredefinedMenuItem::about(
+        app,
+        Some("关于 LocalCases"),
+        Some(AboutMetadata {
+            name: Some("LocalCases".into()),
+            version: Some(env!("CARGO_PKG_VERSION").into()),
+            copyright: Some("LocalCases contributors".into()),
+            license: Some("Apache-2.0".into()),
+            comments: Some("判决文书本地检索".into()),
+            ..Default::default()
+        }),
+    )?;
+    let app_menu = Submenu::with_items(
+        app,
+        "LocalCases",
+        true,
+        &[
+            &about,
+            &PredefinedMenuItem::separator(app)?,
+            &PredefinedMenuItem::services(app, None)?,
+            &PredefinedMenuItem::separator(app)?,
+            &PredefinedMenuItem::hide(app, Some("隐藏 LocalCases"))?,
+            &PredefinedMenuItem::hide_others(app, Some("隐藏其他"))?,
+            &PredefinedMenuItem::show_all(app, None)?,
+            &PredefinedMenuItem::separator(app)?,
+            &PredefinedMenuItem::quit(app, Some("退出 LocalCases"))?,
+        ],
+    )?;
+    let file_menu = Submenu::with_items(
+        app,
+        "文件",
+        true,
+        &[
+            &MenuItem::with_id(app, "export", "导出 CSV…", true, Some("CmdOrCtrl+E"))?,
+            &PredefinedMenuItem::separator(app)?,
+            &PredefinedMenuItem::close_window(app, Some("关闭窗口"))?,
+        ],
+    )?;
+    let edit_menu = SubmenuBuilder::new(app, "编辑")
+        .undo()
+        .redo()
+        .separator()
+        .cut()
+        .copy()
+        .paste()
+        .select_all()
+        .build()?;
+    let view_menu = Submenu::with_items(
+        app,
+        "显示",
+        true,
+        &[
+            &MenuItem::with_id(app, "focus-search", "聚焦搜索框", true, Some("CmdOrCtrl+F"))?,
+            &MenuItem::with_id(
+                app,
+                "toggle-facets",
+                "显示/隐藏筛选侧栏",
+                true,
+                Some("CmdOrCtrl+Alt+S"),
+            )?,
+            &PredefinedMenuItem::separator(app)?,
+            &PredefinedMenuItem::fullscreen(app, Some("全屏"))?,
+        ],
+    )?;
+    // The Window submenu carries the id Tauri and macOS use to keep the window
+    // list current; Help carries the id macOS appends its search field to.
+    let window_menu = SubmenuBuilder::with_id(app, WINDOW_SUBMENU_ID, "窗口")
+        .minimize()
+        .maximize()
+        .separator()
+        .item(&PredefinedMenuItem::close_window(app, Some("关闭窗口"))?)
+        .build()?;
+    let help_menu = SubmenuBuilder::with_id(app, HELP_SUBMENU_ID, "帮助")
+        .text("help", "配置与使用说明")
+        .build()?;
+    Menu::with_items(
+        app,
+        &[
+            &app_menu,
+            &file_menu,
+            &edit_menu,
+            &view_menu,
+            &window_menu,
+            &help_menu,
+        ],
+    )
+}
+
+/// Dock icon clicked with no window on screen: bring the window back, making a
+/// fresh one if the user had closed the last.
+fn show_or_create_main(app: &tauri::AppHandle) {
+    match app.get_webview_window("main") {
+        Some(window) => {
+            let _ = window.unminimize();
+            let _ = window.show();
+            let _ = window.set_focus();
+        }
+        None => {
+            let _ = WebviewWindowBuilder::new(app, "main", WebviewUrl::App("index.html".into()))
+                .title("LocalCases")
+                .inner_size(1240.0, 820.0)
+                .min_inner_size(860.0, 520.0)
+                .build();
+        }
+    }
+}
+
 fn main() {
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::INFO)
@@ -60,55 +219,79 @@ fn main() {
     };
 
     // Two ways to fill the window: open the library here, or ask someone else's
-    // process that did. The front-end cannot tell them apart.
-    if let Some(base) = env("LOCALCASES_REMOTE_API") {
-        let upstream =
-            match localcases::proxy::Upstream::parse(&base, env("LOCALCASES_UPSTREAM_TOKEN")) {
-                Ok(upstream) => upstream,
-                Err(e) => {
-                    eprintln!("{e}");
-                    std::process::exit(2);
-                }
-            };
-        tauri::Builder::default()
-            .manage(info)
-            .setup(move |_app| {
-                tauri::async_runtime::spawn(async move {
-                    if let Err(e) = localcases::proxy::serve(addr, upstream, Some(token)).await {
-                        eprintln!("the forwarder stopped: {e}");
-                    }
-                });
-                Ok(())
-            })
-            .invoke_handler(tauri::generate_handler![api_info])
-            .run(tauri::generate_context!())
-            .expect("error while running LocalCases");
-        return;
-    }
-
-    // LOCALCASES_CONFIG points at the library to open (db + index_path). Without
-    // it the shell tells the user what is missing instead of dying on a panic.
-    let state = match localcases::server::open_state() {
-        Ok(state) => state,
-        Err(e) => {
-            eprintln!(
-                "{e}\nPoint LOCALCASES_CONFIG at a config file (see config_sample.toml), or LOCALCASES_REMOTE_API at a LocalCases service on another machine."
-            );
-            std::process::exit(2);
+    // process that did. The front-end cannot tell them apart. LOCALCASES_CONFIG
+    // points at the library to open (db + index_path); without it the shell tells
+    // the user what is missing instead of dying on a panic.
+    let mode = if let Some(base) = env("LOCALCASES_REMOTE_API") {
+        match localcases::proxy::Upstream::parse(&base, env("LOCALCASES_UPSTREAM_TOKEN")) {
+            Ok(upstream) => Mode::Remote(upstream),
+            Err(e) => {
+                eprintln!("{e}");
+                std::process::exit(2);
+            }
+        }
+    } else {
+        match localcases::server::open_state() {
+            Ok(state) => Mode::Local(state),
+            Err(e) => {
+                eprintln!(
+                    "{e}\nPoint LOCALCASES_CONFIG at a config file (see config_sample.toml), or LOCALCASES_REMOTE_API at a LocalCases service on another machine."
+                );
+                std::process::exit(2);
+            }
         }
     };
 
-    tauri::Builder::default()
+    let builder = tauri::Builder::default()
+        // A second launch focuses the window that exists instead of opening a
+        // second engine and a second window.
+        .plugin(tauri_plugin_single_instance::init(|app, _argv, _cwd| {
+            show_or_create_main(app);
+        }))
+        .plugin(tauri_plugin_window_state::Builder::default().build())
+        .plugin(tauri_plugin_dialog::init())
         .manage(info)
-        .setup(move |_app| {
-            tauri::async_runtime::spawn(async move {
-                if let Err(e) = localcases::server::serve_at(state, addr, Some(token)).await {
-                    eprintln!("search service stopped: {e}");
-                }
-            });
-            Ok(())
+        .invoke_handler(tauri::generate_handler![api_info, save_csv])
+        .on_menu_event(|app, event| {
+            let id = event.id().as_ref();
+            if matches!(id, "export" | "toggle-facets" | "focus-search" | "help") {
+                let _ = app.emit("menu", id);
+            }
         })
-        .invoke_handler(tauri::generate_handler![api_info])
-        .run(tauri::generate_context!())
+        .setup(move |app| {
+            app.set_menu(build_menu(app.handle())?)?;
+            let token = Some(token);
+            match mode {
+                Mode::Local(state) => {
+                    tauri::async_runtime::spawn(async move {
+                        if let Err(e) = localcases::server::serve_at(state, addr, token).await {
+                            eprintln!("search service stopped: {e}");
+                        }
+                    });
+                }
+                Mode::Remote(upstream) => {
+                    tauri::async_runtime::spawn(async move {
+                        if let Err(e) = localcases::proxy::serve(addr, upstream, token).await {
+                            eprintln!("the forwarder stopped: {e}");
+                        }
+                    });
+                }
+            }
+            Ok(())
+        });
+
+    let app = builder
+        .build(tauri::generate_context!())
         .expect("error while running LocalCases");
+    app.run(|app_handle, event| {
+        // Closing the last window leaves the app in the Dock, the way a Mac app
+        // should; clicking it then lands here.
+        if let RunEvent::Reopen {
+            has_visible_windows: false,
+            ..
+        } = event
+        {
+            show_or_create_main(app_handle);
+        }
+    });
 }
