@@ -158,9 +158,16 @@ checks.
 
 * Data is bundled only where it is an official document published for public use,
   carries no personal data the publisher did not itself publish, and is small
-  enough for a reader to check by hand. One corpus qualifies:
+  enough for a reader to check by hand. Three corpora qualify, and they qualify
+  on three different grounds:
   `data/guiding-cases` — the SPC's guiding cases, whose parties the publisher
-  anonymises (某). A user's own judgment corpus is never bundled.
+  anonymises (某), so they ship whole;
+  `data/gazette-cases` — the SPC Gazette's selected judgments, which print
+  身份证号 and 住所地 because a judgment is written to identify the parties, so
+  the citation and 裁判摘要 ship and the body stays in `local_data/`;
+  `data/procuratorate-cases` — the SPP's guiding cases, which name real parties
+  in the title and nothing that identifies them to a stranger, so these ship
+  whole too. A user's own judgment corpus is never bundled.
 * A dataset is a build product, never a hand-edited file: a tool under `tools/`
   produces every byte of it from the source site and records, per record, the
   source URL, the fetch time and the hash of the page it was read from.
@@ -169,11 +176,19 @@ checks.
   derived value that lands in a filterable column must be reproducible from the
   text; anything that would have to be guessed stays empty.
 * `manifest.json` is the contract — file hashes, record and section counts, the
-  gaps. `tools/check_dataset.py` re-checks a dataset against it and reads the
-  expected CSV header out of the importer's own `COLUMNS` table, so a dataset
-  cannot drift away from what `convert` accepts.
-* Importing the bundled dataset must yield a library `check` passes and an index
-  that answers keyword search; the measured numbers live in the dataset README.
+  gaps, and the patterns a publish gate looks for. `tools/check_dataset.py`
+  re-checks a dataset against it and reads the expected CSV header out of the
+  importer's own `COLUMNS` table, so a dataset cannot drift away from what
+  `convert` accepts. A publish gate's patterns are named in the manifest as
+  well, so the generator that gates a write and the checker that confirms the
+  gate read one definition: defined twice they drift, and one program then
+  calls a corpus clean under the same name the other calls it dirty. A corpus
+  may still name the checker's built-in set instead — the Gazette corpus was
+  gated with it, and that set is held here on purpose so the promise can be
+  confirmed from the files alone, on a machine that never ran the builder.
+* Importing a bundled dataset must yield a library `check` passes and an index
+  that answers keyword search; the measured numbers live in the dataset README,
+  and CI runs the import of every bundled corpus, not only of the first one.
 
 ## 9. Provenance
 
@@ -184,6 +199,9 @@ checks.
 | `tools/*.py` | carried over (own work) |
 | `tools/crawl_guiding_cases.py`, `tools/check_dataset.py` | written for this project |
 | `data/guiding-cases/` | built by that crawler from court.gov.cn; the text is the publisher's, the structure and provenance are this project's |
+| `tools/build_gazette_cases.py`, `tools/crawl_procuratorate_cases.py` | written for this project |
+| `data/gazette-cases/`, `local_data/gazette-cases/` | built by that builder from a CC0 compilation of Gazette documents, which are themselves outside copyright (著作权法 第五条); every record keeps the gongbao.court.gov.cn URL it came from |
+| `data/procuratorate-cases/` | built by that crawler from the batch pages on spp.gov.cn; the text is the publisher's, the structure and provenance are this project's |
 | `src/lib.rs`, `config.rs`, `search.rs`, `api.rs`, `server.rs`, `bin/serve.rs` | reimplemented from this specification |
 | `stopwords.txt`, `ui/`, `desktop/`, this file | written for this project |
 
