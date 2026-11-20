@@ -22,3 +22,7 @@ __pycache__/
 /desktop/icons/StoreLogo.png
 /work/
 /health.json
+.DS_Store
+/.vscode/
+# machine-local copy of config_sample.toml (README: `cp config_sample.toml config.toml`)
+/config.toml
