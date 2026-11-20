@@ -7,6 +7,7 @@ pub use search::{Search, Searcher};
 
 pub mod api;
 pub mod config;
+pub mod digest;
 pub mod discovery;
 pub mod extract;
 pub mod model;
@@ -48,6 +49,9 @@ pub struct AppState {
     pub records: PartitionHandle,
     /// `P_FIELDS`
     pub derived: PartitionHandle,
+    /// `P_STATS`: the import report. `/api/health` reads the recorded corpus
+    /// digest from here and never computes it itself.
+    pub stats: PartitionHandle,
     pub searcher: Arc<Searcher>,
     /// Keeps the partitions usable; see the note above.
     pub library: Keyspace,

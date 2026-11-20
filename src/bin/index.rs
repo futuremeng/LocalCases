@@ -13,6 +13,7 @@
 
 use bincode::config::standard;
 use fjall::Config;
+use localcases::digest;
 use localcases::extract::{self, Derived};
 use localcases::v2::*;
 use localcases::{CONFIG, CaseV2, Search, record_partition_options};
@@ -375,4 +376,20 @@ fn main() {
         reader.searcher().segment_readers().len(),
         started.elapsed().as_secs()
     );
+
+    // The digest belongs to the library, not to this build of the index: a
+    // recorded one is kept as truth about the records, and one missing because
+    // the library predates it is backfilled here, so re-running `index` on an
+    // old library makes it pinnable without a full `convert`.
+    let stats = keyspace
+        .open_partition(P_STATS, fjall::PartitionCreateOptions::default())
+        .unwrap();
+    match digest::recorded(&stats) {
+        Some(d) => info!("corpus_digest {d} (recorded by the import)"),
+        None => {
+            let d = digest::corpus_digest(&cases);
+            stats.insert(digest::STATS_KEY, d.as_bytes()).unwrap();
+            info!("corpus_digest {d} (backfilled from the records)");
+        }
+    }
 }

@@ -44,7 +44,10 @@ verified against sits near 7 GB during a run and settles around 2 GB afterwards,
 `check` verifies a built library against itself (every stored id resolves back to
 the record it came from, identity keys are unique, counts match the index);
 `compare` diffs two libraries entry-for-entry, which is how the import path is
-kept honest across changes.
+kept honest across changes. A finished build also records a `corpus_digest` — one
+SHA-256 over every stored record in id order — which `/api/health` reports, so a
+consumer can pin the exact corpus snapshot it measured; re-indexing or re-compacting
+the same records does not move it.
 
 ## Try it without a corpus of your own
 

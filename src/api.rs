@@ -408,11 +408,17 @@ pub async fn health(State(state): State<AppState>) -> impl IntoResponse {
         .searcher()
         .search(&AllQuery, &Count)
         .unwrap_or_default();
+    // The corpus this service speaks, not only how many documents it holds:
+    // a finished import or build recorded its digest, and a consumer can pin
+    // that snapshot. A library predating the digest answers null — the absence
+    // is the answer, not an empty string and not a hash computed at request time.
+    let corpus_digest = crate::digest::recorded(&state.stats);
     Json(serde_json::json!({
         "ok": true,
         "indexed_documents": documents,
         "version": env!("CARGO_PKG_VERSION"),
         "schema": crate::SCHEMA,
+        "corpus_digest": corpus_digest,
     }))
 }
 

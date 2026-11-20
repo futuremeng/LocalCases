@@ -33,6 +33,7 @@ use std::thread;
 use bincode::config::standard;
 use bincode::{Decode, Encode};
 use fjall::{Config, PartitionCreateOptions};
+use localcases::digest;
 use localcases::extract;
 use localcases::v2::*;
 use localcases::{CONFIG, CaseV2, record_partition_options};
@@ -791,7 +792,14 @@ fn convert(raw_path: &str, db_path: &str, opts: &Opts) {
         b"total",
         bincode::encode_to_vec(&total, standard()).unwrap(),
     );
+    // Pin what this corpus is: hashed over the stored records in id order, so
+    // the same CSVs re-imported and the trees re-compacted give the same value
+    // while one changed byte in one judgment cannot. Written in the same batch
+    // as the completion checkpoint — an interrupted run has not decided yet.
+    let corpus_digest = digest::corpus_digest(&cases);
+    batch.insert(&stats, digest::STATS_KEY, corpus_digest.as_bytes());
     batch.commit().unwrap();
+    info!("corpus_digest {corpus_digest}");
 
     for (year, q) in &per_year {
         info!(

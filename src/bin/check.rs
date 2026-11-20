@@ -12,6 +12,7 @@ use std::collections::BTreeMap;
 
 use bincode::config::standard;
 use fjall::{Config, PartitionCreateOptions};
+use localcases::digest;
 use localcases::extract;
 use localcases::v2::*;
 use localcases::{CONFIG, CaseV2};
@@ -253,6 +254,23 @@ fn main() {
             "ids partition matches cases partition",
             n_ids == n_cases && n_ids == max_id as u64,
             format!("{n_ids} ids, {n_cases} cases, highest id {max_id}"),
+        );
+        // The recorded digest is the corpus's name; this run re-derives it from
+        // every record. A library whose records moved without a recorded import
+        // saying so must not pass as the corpus it claims to be.
+        let t0 = std::time::Instant::now();
+        let computed = digest::corpus_digest(cases);
+        let recorded = digest::recorded(stats);
+        check(
+            "corpus digest matches the records",
+            recorded.as_deref() == Some(computed.as_str()),
+            match recorded.as_deref() {
+                Some(r) if r == computed => format!("{computed} ({}s)", t0.elapsed().as_secs()),
+                Some(r) => format!("recorded {r}, records say {computed}"),
+                None => format!(
+                    "not recorded yet; records say {computed} — run convert or index to record it"
+                ),
+            },
         );
         check(
             "fields partition matches cases partition",

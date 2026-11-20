@@ -24,7 +24,7 @@ use tracing::{info, warn};
 use crate::api;
 use crate::config::CONFIG;
 use crate::discovery::{self, Announcement};
-use crate::v2::{P_CASES, P_FIELDS};
+use crate::v2::{P_CASES, P_FIELDS, P_STATS};
 use crate::{AppState, Search};
 
 /// Origins a webview may call from: the packaged shell and `tauri dev`.
@@ -103,9 +103,15 @@ pub fn open_state() -> Result<AppState, String> {
     let derived = library
         .open_partition(P_FIELDS, crate::record_partition_options())
         .map_err(|e| format!("library has no derived partition: {e}"))?;
+    // Opened with the same create options the importer and `check` use, and
+    // health reads the recorded corpus digest from it — never computes one.
+    let stats = library
+        .open_partition(P_STATS, fjall::PartitionCreateOptions::default())
+        .map_err(|e| format!("cannot open the stats partition: {e}"))?;
     Ok(AppState {
         records,
         derived,
+        stats,
         searcher: Arc::new(searcher),
         library,
     })

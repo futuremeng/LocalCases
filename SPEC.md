@@ -71,8 +71,14 @@ Local HTTP, JSON only, no HTML rendering anywhere in the engine.
   engine returns text; the caller decides how to display it.
 * `GET /api/export.csv` — the same query as a download, capped by a configured
   limit.
-* `GET /api/health` — the service is up, how many documents are indexed, and the
-  contract it speaks (`version`, `schema`), so a consumer can refuse a mismatch.
+* `GET /api/health` — the service is up, how many documents are indexed, the
+  contract it speaks (`version`, `schema`), and the `corpus_digest` a finished
+  import recorded: one SHA-256 over every stored record in ascending id order,
+  each entry framed by its key and the row's length, so insertion order,
+  compaction and index rebuilds cannot move it while one changed byte must.
+  A library predating the digest answers `null` — the absence is the answer,
+  never a hash computed at request time. So a consumer can refuse a mismatch
+  and pin the corpus snapshot it measured.
 * A filter value that cannot be parsed is a client error, never a silently
   widened query. Unknown parameters are ignored, so older clients keep working.
 * Full-width/half-width and simplified/traditional spellings find each other.
@@ -127,6 +133,9 @@ Local HTTP, JSON only, no HTML rendering anywhere in the engine.
   totals, cursors and facet buckets as the reference build.
 * Counters, filters, facets and sorting are cross-checked against numbers
   recomputed from the source CSV files, not against a golden file.
+* A recorded `corpus_digest` is re-derived from every record on every `check`
+  run: a digest that disagrees with the records — or records whose digest was
+  never recorded — fail the run.
 * The API's internal consistency (facet bucket vs. filter total within the
   reported error bound, cursor paging vs. offset paging, export cap) is checked on
   every run.
