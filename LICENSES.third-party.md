@@ -17,8 +17,8 @@ Regenerate: `python3 tools/licenses.py`.
 
 | SPDX expression | crates |
 | --- | --- |
-| MIT OR Apache-2.0 | 134 |
-| MIT | 72 |
+| MIT OR Apache-2.0 | 140 |
+| MIT | 73 |
 | MIT/Apache-2.0 | 13 |
 | Apache-2.0 OR MIT | 11 |
 | Apache-2.0 | 7 |
@@ -66,6 +66,7 @@ Regenerate: `python3 tools/licenses.py`.
 | bitflags | 1.3.2 | MIT/Apache-2.0 |
 | bitflags | 2.13.2 | MIT OR Apache-2.0 |
 | bitpacking | 0.9.3 | MIT |
+| block-buffer | 0.10.4 | MIT OR Apache-2.0 |
 | bon | 3.10.3 | MIT OR Apache-2.0 |
 | bon-macros | 3.10.3 | MIT OR Apache-2.0 |
 | bumpalo | 3.20.3 | MIT OR Apache-2.0 |
@@ -80,6 +81,7 @@ Regenerate: `python3 tools/licenses.py`.
 | compare | 0.0.6 | MIT/Apache-2.0 |
 | compression-codecs | 0.4.46 | MIT OR Apache-2.0 |
 | compression-core | 0.4.34 | MIT OR Apache-2.0 |
+| cpufeatures | 0.2.17 | MIT OR Apache-2.0 |
 | crc32fast | 1.5.3 | MIT OR Apache-2.0 |
 | crossbeam-channel | 0.5.17 | MIT OR Apache-2.0 |
 | crossbeam-deque | 0.8.8 | MIT OR Apache-2.0 |
@@ -87,6 +89,7 @@ Regenerate: `python3 tools/licenses.py`.
 | crossbeam-skiplist | 0.1.3 | MIT OR Apache-2.0 |
 | crossbeam-utils | 0.8.23 | MIT OR Apache-2.0 |
 | crunchy | 0.2.4 | MIT |
+| crypto-common | 0.1.7 | MIT OR Apache-2.0 |
 | csv | 1.4.0 | Unlicense/MIT |
 | csv-core | 0.1.13 | Unlicense/MIT |
 | darling | 0.24.1 | MIT |
@@ -99,6 +102,7 @@ Regenerate: `python3 tools/licenses.py`.
 | defmt-macros | 1.2.0 | MIT OR Apache-2.0 |
 | defmt-parser | 1.1.0 | MIT OR Apache-2.0 |
 | deranged | 0.5.9 | MIT OR Apache-2.0 |
+| digest | 0.10.7 | MIT OR Apache-2.0 |
 | double-ended-peekable | 0.1.0 | MIT |
 | downcast-rs | 2.0.2 | MIT OR Apache-2.0 |
 | either | 1.19.0 | MIT OR Apache-2.0 |
@@ -123,6 +127,7 @@ Regenerate: `python3 tools/licenses.py`.
 | futures-sink | 0.3.34 | MIT OR Apache-2.0 |
 | futures-task | 0.3.34 | MIT OR Apache-2.0 |
 | futures-util | 0.3.34 | MIT OR Apache-2.0 |
+| generic-array | 0.14.7 | MIT |
 | getrandom | 0.2.17 | MIT OR Apache-2.0 |
 | getrandom | 0.3.4 | MIT OR Apache-2.0 |
 | getrandom | 0.4.3 | MIT OR Apache-2.0 |
@@ -228,6 +233,7 @@ Regenerate: `python3 tools/licenses.py`.
 | serde_json | 1.0.154 | MIT OR Apache-2.0 |
 | serde_path_to_error | 0.1.20 | MIT OR Apache-2.0 |
 | serde_urlencoded | 0.7.1 | MIT/Apache-2.0 |
+| sha2 | 0.10.9 | MIT OR Apache-2.0 |
 | sharded-slab | 0.1.7 | MIT |
 | shlex | 2.0.1 | MIT OR Apache-2.0 |
 | signal-hook-registry | 1.4.8 | MIT OR Apache-2.0 |
@@ -276,6 +282,7 @@ Regenerate: `python3 tools/licenses.py`.
 | tracing-subscriber | 0.3.23 | MIT |
 | typed-path | 0.13.0 | MIT OR Apache-2.0 |
 | typeid | 1.0.3 | MIT OR Apache-2.0 |
+| typenum | 1.20.1 | MIT OR Apache-2.0 |
 | typetag | 0.2.23 | MIT OR Apache-2.0 |
 | typetag-impl | 0.2.23 | MIT OR Apache-2.0 |
 | unicode-ident | 1.0.27 | (MIT OR Apache-2.0) AND Unicode-3.0 |

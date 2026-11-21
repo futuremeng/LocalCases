@@ -2529,6 +2529,7 @@ dependencies = [
  "jiff",
  "serde",
  "serde_json",
+ "sha2",
  "stop-words",
  "tantivy",
  "tantivy-jieba",
