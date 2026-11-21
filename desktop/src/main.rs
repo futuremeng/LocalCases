@@ -20,11 +20,13 @@
 use std::net::{SocketAddr, TcpListener};
 
 use serde::Serialize;
+#[cfg(target_os = "macos")]
+use tauri::RunEvent;
 use tauri::menu::{
     AboutMetadata, HELP_SUBMENU_ID, Menu, MenuItem, PredefinedMenuItem, Submenu, SubmenuBuilder,
     WINDOW_SUBMENU_ID,
 };
-use tauri::{Emitter, Manager, RunEvent, WebviewUrl, WebviewWindowBuilder};
+use tauri::{Emitter, Manager, WebviewUrl, WebviewWindowBuilder};
 
 /// Where the search service lives, handed to the webview on request.
 #[derive(Clone, Serialize)]
@@ -284,14 +286,20 @@ fn main() {
         .build(tauri::generate_context!())
         .expect("error while running LocalCases");
     app.run(|app_handle, event| {
-        // Closing the last window leaves the app in the Dock, the way a Mac app
-        // should; clicking it then lands here.
-        if let RunEvent::Reopen {
-            has_visible_windows: false,
-            ..
-        } = event
+        #[cfg(target_os = "macos")]
         {
-            show_or_create_main(app_handle);
+            // Closing the last window leaves the app in the Dock, the way a Mac app
+            // should; clicking it then lands here. Reopen is a macOS-only RunEvent
+            // variant — Linux/Windows builds must not name it or they fail to compile.
+            if let RunEvent::Reopen {
+                has_visible_windows: false,
+                ..
+            } = event
+            {
+                show_or_create_main(app_handle);
+            }
         }
+        #[cfg(not(target_os = "macos"))]
+        let _ = (&app_handle, &event);
     });
 }

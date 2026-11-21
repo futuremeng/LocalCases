@@ -17,9 +17,9 @@ Regenerate: `python3 tools/licenses.py`.
 
 | SPDX expression | crates |
 | --- | --- |
-| MIT OR Apache-2.0 | 250 |
-| MIT | 149 |
-| Apache-2.0 OR MIT | 30 |
+| MIT OR Apache-2.0 | 257 |
+| MIT | 159 |
+| Apache-2.0 OR MIT | 49 |
 | MIT/Apache-2.0 | 19 |
 | Unicode-3.0 | 18 |
 | Zlib OR Apache-2.0 OR MIT | 17 |
@@ -67,7 +67,16 @@ Regenerate: `python3 tools/licenses.py`.
 | android_system_properties | 0.1.6 | MIT OR Apache-2.0 |
 | anyhow | 1.0.104 | MIT OR Apache-2.0 |
 | arc-swap | 1.9.3 | MIT OR Apache-2.0 |
+| async-broadcast | 0.7.2 | MIT OR Apache-2.0 |
+| async-channel | 2.5.0 | Apache-2.0 OR MIT |
 | async-compression | 0.4.51 | MIT OR Apache-2.0 |
+| async-executor | 1.14.1 | Apache-2.0 OR MIT |
+| async-io | 2.6.0 | Apache-2.0 OR MIT |
+| async-lock | 3.5.0 | Apache-2.0 OR MIT |
+| async-process | 2.5.0 | Apache-2.0 OR MIT |
+| async-recursion | 1.2.0 | MIT OR Apache-2.0 |
+| async-signal | 0.2.14 | Apache-2.0 OR MIT |
+| async-task | 4.7.1 | Apache-2.0 OR MIT |
 | async-trait | 0.1.92 | MIT OR Apache-2.0 |
 | atk | 0.18.2 | MIT |
 | atk-sys | 0.18.2 | MIT |
@@ -88,6 +97,7 @@ Regenerate: `python3 tools/licenses.py`.
 | bitpacking | 0.9.3 | MIT |
 | block-buffer | 0.10.4 | MIT OR Apache-2.0 |
 | block2 | 0.6.2 | MIT |
+| blocking | 1.7.0 | Apache-2.0 OR MIT |
 | bon | 3.10.3 | MIT OR Apache-2.0 |
 | bon-macros | 3.10.3 | MIT OR Apache-2.0 |
 | brotli | 9.1.0 | BSD-3-Clause AND MIT |
@@ -117,6 +127,7 @@ Regenerate: `python3 tools/licenses.py`.
 | compare | 0.0.6 | MIT/Apache-2.0 |
 | compression-codecs | 0.4.46 | MIT OR Apache-2.0 |
 | compression-core | 0.4.34 | MIT OR Apache-2.0 |
+| concurrent-queue | 2.5.0 | Apache-2.0 OR MIT |
 | cookie | 0.18.2 | MIT OR Apache-2.0 |
 | core-foundation | 0.10.1 | MIT OR Apache-2.0 |
 | core-foundation-sys | 0.8.7 | MIT OR Apache-2.0 |
@@ -167,10 +178,15 @@ Regenerate: `python3 tools/licenses.py`.
 | either | 1.19.0 | MIT OR Apache-2.0 |
 | embed-resource | 3.0.12 | MIT |
 | embed_plist | 1.2.2 | MIT OR Apache-2.0 |
+| endi | 1.1.1 | MIT |
 | enum_dispatch | 0.3.13 | MIT OR Apache-2.0 |
+| enumflags2 | 0.7.12 | MIT OR Apache-2.0 |
+| enumflags2_derive | 0.7.12 | MIT OR Apache-2.0 |
 | equivalent | 1.0.3 | Apache-2.0 OR MIT |
 | erased-serde | 0.4.11 | MIT OR Apache-2.0 |
 | errno | 0.3.14 | MIT OR Apache-2.0 |
+| event-listener | 5.4.2 | Apache-2.0 OR MIT |
+| event-listener-strategy | 0.5.4 | Apache-2.0 OR MIT |
 | fast2s | 0.3.1 | MIT |
 | fastdivide | 0.4.2 | zlib-acknowledgement OR MIT |
 | fastrand | 2.5.0 | Apache-2.0 OR MIT |
@@ -191,6 +207,7 @@ Regenerate: `python3 tools/licenses.py`.
 | futures-core | 0.3.34 | MIT OR Apache-2.0 |
 | futures-executor | 0.3.34 | MIT OR Apache-2.0 |
 | futures-io | 0.3.34 | MIT OR Apache-2.0 |
+| futures-lite | 2.6.1 | Apache-2.0 OR MIT |
 | futures-macro | 0.3.34 | MIT OR Apache-2.0 |
 | futures-sink | 0.3.34 | MIT OR Apache-2.0 |
 | futures-task | 0.3.34 | MIT OR Apache-2.0 |
@@ -224,6 +241,7 @@ Regenerate: `python3 tools/licenses.py`.
 | hashbrown | 0.17.1 | MIT OR Apache-2.0 |
 | heck | 0.4.1 | MIT OR Apache-2.0 |
 | heck | 0.5.0 | MIT OR Apache-2.0 |
+| hermit-abi | 0.5.3 | MIT OR Apache-2.0 |
 | hex | 0.4.3 | MIT OR Apache-2.0 |
 | html5ever | 0.39.0 | MIT OR Apache-2.0 |
 | htmlescape | 0.3.1 | Apache-2.0 / MIT / MPL-2.0 |
@@ -340,9 +358,11 @@ Regenerate: `python3 tools/licenses.py`.
 | oneshot | 0.1.13 | MIT OR Apache-2.0 |
 | option-ext | 0.2.0 | MPL-2.0 |
 | ordered-float | 5.5.0 | MIT |
+| ordered-stream | 0.2.0 | MIT OR Apache-2.0 |
 | ownedbytes | 0.9.0 | MIT |
 | pango | 0.18.3 | MIT |
 | pango-sys | 0.18.0 | MIT |
+| parking | 2.2.1 | Apache-2.0 OR MIT |
 | parking_lot | 0.12.5 | MIT OR Apache-2.0 |
 | parking_lot_core | 0.9.12 | MIT OR Apache-2.0 |
 | path-absolutize | 3.1.1 | MIT |
@@ -354,9 +374,11 @@ Regenerate: `python3 tools/licenses.py`.
 | phf_macros | 0.13.1 | MIT |
 | phf_shared | 0.13.1 | MIT |
 | pin-project-lite | 0.2.17 | Apache-2.0 OR MIT |
+| piper | 0.2.5 | MIT OR Apache-2.0 |
 | pkg-config | 0.3.34 | MIT OR Apache-2.0 |
 | plist | 1.10.3 | MIT |
 | png | 0.18.1 | MIT OR Apache-2.0 |
+| polling | 3.11.0 | Apache-2.0 OR MIT |
 | portable-atomic | 1.15.0 | Apache-2.0 OR MIT |
 | portable-atomic-util | 0.2.8 | Apache-2.0 OR MIT |
 | potential_utf | 0.1.6 | Unicode-3.0 |
@@ -391,6 +413,7 @@ Regenerate: `python3 tools/licenses.py`.
 | regex-automata | 0.4.18 | MIT OR Apache-2.0 |
 | regex-syntax | 0.8.11 | MIT OR Apache-2.0 |
 | reqwest | 0.13.5 | MIT OR Apache-2.0 |
+| rfd | 0.17.2 | MIT |
 | rle-decode-fast | 1.0.3 | MIT OR Apache-2.0 |
 | rustc-hash | 2.1.3 | Apache-2.0 OR MIT |
 | rustc_version | 0.4.1 | MIT OR Apache-2.0 |
@@ -467,6 +490,11 @@ Regenerate: `python3 tools/licenses.py`.
 | tauri-build | 2.7.4 | Apache-2.0 OR MIT |
 | tauri-codegen | 2.7.4 | Apache-2.0 OR MIT |
 | tauri-macros | 2.7.4 | Apache-2.0 OR MIT |
+| tauri-plugin | 2.7.2 | Apache-2.0 OR MIT |
+| tauri-plugin-dialog | 2.8.4 | Apache-2.0 OR MIT |
+| tauri-plugin-fs | 2.7.1 | Apache-2.0 OR MIT |
+| tauri-plugin-single-instance | 2.5.5 | Apache-2.0 OR MIT |
+| tauri-plugin-window-state | 2.5.0 | Apache-2.0 OR MIT |
 | tauri-runtime | 2.12.2 | Apache-2.0 OR MIT |
 | tauri-runtime-wry | 2.12.3 | Apache-2.0 OR MIT |
 | tauri-utils | 2.10.2 | Apache-2.0 OR MIT |
@@ -514,6 +542,7 @@ Regenerate: `python3 tools/licenses.py`.
 | typenum | 1.20.1 | MIT OR Apache-2.0 |
 | typetag | 0.2.23 | MIT OR Apache-2.0 |
 | typetag-impl | 0.2.23 | MIT OR Apache-2.0 |
+| uds_windows | 1.2.1 | MIT |
 | unicode-ident | 1.0.27 | (MIT OR Apache-2.0) AND Unicode-3.0 |
 | unicode-segmentation | 1.13.3 | MIT OR Apache-2.0 |
 | unty | 0.0.4 | MIT OR Apache-2.0 |
@@ -597,6 +626,10 @@ Regenerate: `python3 tools/licenses.py`.
 | xxhash-rust | 0.8.19 | BSL-1.0 |
 | yoke | 0.8.4 | Unicode-3.0 |
 | yoke-derive | 0.8.4 | Unicode-3.0 |
+| zbus | 5.19.0 | MIT |
+| zbus_macros | 5.19.0 | MIT |
+| zbus_names | 4.3.5 | MIT |
+| zcheapstr | 1.2.0 | MIT |
 | zerocopy | 0.8.63 | BSD-2-Clause OR Apache-2.0 OR MIT |
 | zerocopy-derive | 0.8.63 | BSD-2-Clause OR Apache-2.0 OR MIT |
 | zerofrom | 0.1.8 | Unicode-3.0 |
@@ -613,3 +646,6 @@ Regenerate: `python3 tools/licenses.py`.
 | zstd-safe | 7.3.0 | BSD-3-Clause |
 | zstd-safe | 8.2.0 | BSD-3-Clause |
 | zstd-sys | 2.1.2+zstd.1.5.7 | BSD-3-Clause |
+| zvariant | 5.15.1 | MIT |
+| zvariant_derive | 5.15.1 | MIT |
+| zvariant_utils | 4.2.0 | MIT |
