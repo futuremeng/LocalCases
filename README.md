@@ -169,14 +169,14 @@ sidebar, result list, full-text panel, CSV export. It renders every field throug
 
 ## Downloads
 
-A tag publishes what CI built: pushing `v0.3.0` runs the same checks a push runs and
+A tag publishes what CI built: pushing `v0.3.2` runs the same checks a push runs and
 then attaches the three bundles to a release, with a `SHA256SUMS` beside them.
 
 | file | for |
 | --- | --- |
-| `LocalCases-0.3.0-linux-amd64.deb` | Debian and Ubuntu on x86_64 |
-| `LocalCases-0.3.0-macos-arm64.app.zip` | Apple Silicon — unzip and drag onto Applications |
-| `LocalCases-0.3.0-windows-x64.msi` | Windows 10 and 11 on x86_64 |
+| `LocalCases-0.3.2-linux-amd64.deb` | Debian and Ubuntu on x86_64 |
+| `LocalCases-0.3.2-macos-arm64.app.zip` | Apple Silicon — unzip and drag onto Applications |
+| `LocalCases-0.3.2-windows-x64.msi` | Windows 10 and 11 on x86_64 |
 
 Nothing in them is signed: a Mac will say the app is from an unidentified developer
 (right-click → Open, once) and Windows will show SmartScreen. Check what you
