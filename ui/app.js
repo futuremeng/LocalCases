@@ -432,6 +432,7 @@ async function boot() {
   for (let attempt = 0; attempt < 20; attempt += 1) {
     try {
       await run();
+      await showLibState();
       return;
     } catch (e) {
       setStatus("正在启动本地索引…", false);
@@ -439,6 +440,21 @@ async function boot() {
     }
   }
   setStatus("本地索引打不开：检查配置文件里的 db 与 index_path，并先运行 convert / index。", true);
+}
+
+// Say what the window is actually looking at, so a fresh install reads as an
+// empty library — true, and with the version on screen — rather than as a
+// blank page. The digest is the corpus identity `/api/health` reports; a
+// library predating it answers null, and null is shown as 未记录.
+async function showLibState() {
+  const line = document.getElementById("libstate");
+  try {
+    const h = await call("/api/health", new URLSearchParams());
+    line.textContent =
+      `程序版本 v${h.version} · 本机已收录 ${h.indexed_documents} 篇 · 语料摘要 ${h.corpus_digest || "未记录"}`;
+  } catch (e) {
+    line.textContent = "本机库状态未知";
+  }
 }
 
 boot();

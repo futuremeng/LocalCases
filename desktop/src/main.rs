@@ -17,7 +17,12 @@
 
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
+use std::fs;
+use std::io::{self, Write};
 use std::net::{SocketAddr, TcpListener};
+use std::panic;
+use std::path::{Path, PathBuf};
+use std::time::{SystemTime, UNIX_EPOCH};
 
 use serde::Serialize;
 #[cfg(target_os = "macos")]
@@ -85,6 +90,118 @@ fn free_addr() -> Option<SocketAddr> {
         let addr = SocketAddr::from(([127, 0, 0, 1], port));
         TcpListener::bind(addr).ok().map(|_| addr)
     })
+}
+
+/// The directory the shell keeps its own files in: the config a fresh install
+/// gets and the crash log. `LOCALCASES_APP_DATA` overrides it for tests and
+/// for anyone who wants the library somewhere else.
+fn app_data_dir() -> PathBuf {
+    if let Some(dir) = env("LOCALCASES_APP_DATA") {
+        return PathBuf::from(dir);
+    }
+    const ID: &str = "org.localcases.desktop";
+    #[cfg(target_os = "macos")]
+    let base = PathBuf::from(env("HOME").unwrap_or_default())
+        .join("Library")
+        .join("Application Support");
+    #[cfg(target_os = "windows")]
+    let base = PathBuf::from(env("APPDATA").unwrap_or_default());
+    #[cfg(not(any(target_os = "macos", target_os = "windows")))]
+    let base = match env("XDG_DATA_HOME") {
+        Some(dir) => PathBuf::from(dir),
+        None => PathBuf::from(env("HOME").unwrap_or_default())
+            .join(".local")
+            .join("share"),
+    };
+    base.join(ID)
+}
+
+/// The config a fresh install gets, so the window opens on an empty library
+/// instead of failing on a missing file: the library and the index live next
+/// to the config in the app-data directory.
+pub fn create_default_config(dir: &Path) -> io::Result<PathBuf> {
+    let file = dir.join("config.toml");
+    // Debug-formatting quotes the paths and escapes separators, which is
+    // valid TOML on every platform, Windows backslashes included.
+    let text = format!(
+        "# written by the desktop shell on first run\ndb = {:?}\nindex_path = {:?}\naddr = \"127.0.0.1:0\"\n",
+        dir.join("library"),
+        dir.join("index")
+    );
+    fs::create_dir_all(dir)?;
+    fs::write(&file, text)?;
+    Ok(file)
+}
+
+/// Make sure a local-mode launch has a config to open. Development runs keep
+/// their own setup: an explicit `LOCALCASES_CONFIG` or a `config.toml` in the
+/// working directory wins and nothing is written. Otherwise the shell writes
+/// the default into the app-data directory and points the engine at it, so a
+/// fresh install opens on an empty library instead of an error.
+fn ensure_local_config() {
+    if env("LOCALCASES_CONFIG").is_some() || Path::new("config.toml").exists() {
+        return;
+    }
+    let dir = app_data_dir();
+    let file = dir.join("config.toml");
+    if !file.exists() {
+        if let Err(e) = create_default_config(&dir) {
+            report_failure(&format!("cannot create the default config: {e}"));
+        }
+    }
+    // SAFETY: this runs in `main` before any thread or window exists, so no
+    // other code can observe the environment while it changes.
+    unsafe { std::env::set_var("LOCALCASES_CONFIG", &file) };
+}
+
+/// Seconds since the epoch, for the crash log's timestamps.
+fn epoch() -> u64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .map(|d| d.as_secs())
+        .unwrap_or_default()
+}
+
+/// Say plainly why the window is not coming, leave the same line in the crash
+/// log next to the app's other state, and exit.
+fn report_failure(msg: &str) -> ! {
+    eprintln!("{msg}");
+    let dir = app_data_dir();
+    let _ = fs::create_dir_all(&dir);
+    if let Ok(mut log) = fs::OpenOptions::new()
+        .create(true)
+        .append(true)
+        .open(dir.join("crash.log"))
+    {
+        let _ = writeln!(log, "{}s shell exit: {msg}", epoch());
+    }
+    std::process::exit(2);
+}
+
+/// A panic with no window is otherwise silent: every panic now appends a
+/// line and a backtrace to the crash log before the default hook prints it.
+/// Nothing here swallows a panic.
+fn install_crash_log() {
+    let previous = panic::take_hook();
+    panic::set_hook(Box::new(move |info| {
+        let dir = app_data_dir();
+        let _ = fs::create_dir_all(&dir);
+        if let Ok(mut log) = fs::OpenOptions::new()
+            .create(true)
+            .append(true)
+            .open(dir.join("crash.log"))
+        {
+            let _ = writeln!(
+                log,
+                "{}s LocalCases {} panicked: {}\n{}",
+                epoch(),
+                env!("CARGO_PKG_VERSION"),
+                info,
+                std::backtrace::Backtrace::force_capture()
+            );
+        }
+        previous(info);
+    }));
 }
 
 /// What fills the window: open the library here, or ask someone else's process
@@ -206,13 +323,13 @@ fn show_or_create_main(app: &tauri::AppHandle) {
 }
 
 fn main() {
+    install_crash_log();
     tracing_subscriber::fmt()
         .with_max_level(tracing::Level::INFO)
         .init();
 
     let Some(addr) = free_addr() else {
-        eprintln!("no free loopback port between 5311 and 5313");
-        std::process::exit(2);
+        report_failure("no free loopback port between 5311 and 5313");
     };
     let token = localcases::server::random_token();
     let info = ApiInfo {
@@ -227,20 +344,17 @@ fn main() {
     let mode = if let Some(base) = env("LOCALCASES_REMOTE_API") {
         match localcases::proxy::Upstream::parse(&base, env("LOCALCASES_UPSTREAM_TOKEN")) {
             Ok(upstream) => Mode::Remote(upstream),
-            Err(e) => {
-                eprintln!("{e}");
-                std::process::exit(2);
-            }
+            Err(e) => report_failure(&format!("{e}")),
         }
     } else {
+        // A fresh install has no config anywhere yet: give it one pointing at
+        // an empty library in the app-data directory before opening it.
+        ensure_local_config();
         match localcases::server::open_state() {
             Ok(state) => Mode::Local(state),
-            Err(e) => {
-                eprintln!(
-                    "{e}\nPoint LOCALCASES_CONFIG at a config file (see config_sample.toml), or LOCALCASES_REMOTE_API at a LocalCases service on another machine."
-                );
-                std::process::exit(2);
-            }
+            Err(e) => report_failure(&format!(
+                "{e}\nPoint LOCALCASES_CONFIG at a config file (see config_sample.toml), or LOCALCASES_REMOTE_API at a LocalCases service on another machine."
+            )),
         }
     };
 
@@ -302,4 +416,43 @@ fn main() {
         #[cfg(not(target_os = "macos"))]
         let _ = (&app_handle, &event);
     });
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::sync::Mutex;
+
+    // The tests move the process environment, which is shared; one lock keeps
+    // them from tripping over each other.
+    static LOCK: Mutex<()> = Mutex::new(());
+
+    #[test]
+    fn fresh_install_gets_a_default_config_and_opens() {
+        let _guard = LOCK.lock().unwrap();
+        let dir = std::env::temp_dir().join(format!("localcases-desktop-test-{}", epoch()));
+        // SAFETY: the lock above keeps every other test in this binary still.
+        unsafe {
+            std::env::set_var("LOCALCASES_APP_DATA", &dir);
+            std::env::remove_var("LOCALCASES_CONFIG");
+        }
+        // The dev escape hatch must be off for the fresh-install path to run;
+        // `cargo test` runs from `desktop/`, where no config.toml exists.
+        assert!(!Path::new("config.toml").exists());
+        ensure_local_config();
+        let file = dir.join("config.toml");
+        assert!(file.exists(), "the config should have been created");
+        let text = fs::read_to_string(&file).unwrap();
+        assert!(
+            text.contains(&dir.join("library").display().to_string()),
+            "the config should point at a library next to it: {text}"
+        );
+        assert!(
+            localcases::server::open_state().is_ok(),
+            "an empty library should open, not fail the window"
+        );
+        // SAFETY: the lock still holds.
+        unsafe { std::env::remove_var("LOCALCASES_APP_DATA") };
+        let _ = fs::remove_dir_all(&dir);
+    }
 }

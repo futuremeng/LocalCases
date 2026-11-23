@@ -352,6 +352,17 @@ jobs:
           in the window's About box is the version `/api/health` reports, and the
           shell's build script refuses to build when the two manifests disagree.
           `SHA256SUMS` covers the three bundles: `sha256sum -c SHA256SUMS`.
+
+          First launch. On a machine that has never run LocalCases the window opens
+          on an empty library -- this release carries no corpus, and the header says
+          so; importing one is the README's job. These builds are unsigned and
+          un-notarised: on macOS, right-click the app and choose Open the first
+          time (or `xattr -d com.apple.quarantine` the bundle); on Windows,
+          SmartScreen shows "Windows protected your PC" -- choose "More info",
+          then "Run anyway". If the window never appears, the shell has written a
+          line to `crash.log` in its app-data directory (`~/Library/Application
+          Support/org.localcases.desktop` on macOS, `%APPDATA%\org.localcases.desktop`
+          on Windows, `~/.local/share/org.localcases.desktop` on Linux).
           MD
           if gh release view "$GITHUB_REF_NAME" > /dev/null 2>&1; then
             # re-running the job of a tag replaces what it published instead of

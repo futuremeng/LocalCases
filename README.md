@@ -185,8 +185,12 @@ downloaded against the release's `SHA256SUMS` before installing it.
 **A bundle is not enough to search yet.** It installs the window and the engine that
 answers it, but no corpus, and the window has no import: building a library is still
 the CLI's job (*Import, index, search*), so a machine that only has the bundle opens
-on an empty library. Shipping the CLI inside the bundle and putting an import in the
-window are the two things this release does not do.
+on an empty library. On first run the shell writes its own `config.toml` into the
+app-data directory (`~/Library/Application Support/org.localcases.desktop` on macOS,
+`%APPDATA%\org.localcases.desktop` on Windows) and opens the empty library it points
+at; if the window ever fails to appear, the reason is in a `crash.log` line beside
+it. Shipping the CLI inside the bundle and putting an import in the window are the
+two things this release does not do.
 
 ## A small machine: keep the corpus somewhere else
 

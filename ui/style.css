@@ -72,6 +72,7 @@ button:disabled { opacity: .45; cursor: default; }
 ::selection { background: var(--sel-bg); }
 #status { color: var(--muted); font-size: 13px; white-space: nowrap; }
 #status.error { color: var(--error); white-space: normal; }
+#libstate { color: var(--muted); font-size: 12px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .sr-only {
   position: absolute;
   width: 1px; height: 1px;
